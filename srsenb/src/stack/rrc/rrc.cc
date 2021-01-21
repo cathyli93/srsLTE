@@ -1951,8 +1951,8 @@ int rrc::ue::fill_scell_to_addmod_list(asn1::rrc::rrc_conn_recfg_r8_ies_s* conn_
     nonul_cfg.phich_cfg_r10                             = cc_cfg->mib.phich_cfg;
     nonul_cfg.pdsch_cfg_common_r10                      = cc_cfg_sib.pdsch_cfg_common;
     // RadioResourceConfigCommonSCell-r10::ul-Configuration-r10
-    cell.rr_cfg_common_scell_r10.ul_cfg_r10_present          = true;
-    auto& ul_cfg                                             = cell.rr_cfg_common_scell_r10.ul_cfg_r10;
+    cell.rr_cfg_common_scell_r10.ul_cfg_r10_present          = false;
+    /* auto& ul_cfg                                             = cell.rr_cfg_common_scell_r10.ul_cfg_r10;
     ul_cfg.ul_freq_info_r10.ul_carrier_freq_r10_present      = true;
     ul_cfg.ul_freq_info_r10.ul_carrier_freq_r10              = cc_cfg->cell_cfg.ul_earfcn;
     ul_cfg.p_max_r10_present                                 = cell_sib1.p_max_present;
@@ -1963,6 +1963,7 @@ int rrc::ue::fill_scell_to_addmod_list(asn1::rrc::rrc_conn_recfg_r8_ies_s* conn_
     ul_cfg.srs_ul_cfg_common_r10                             = cc_cfg_sib.srs_ul_cfg_common;
     ul_cfg.ul_cp_len_r10.value                               = cc_cfg_sib.ul_cp_len.value;
     ul_cfg.pusch_cfg_common_r10                              = cc_cfg_sib.pusch_cfg_common;
+    */
     // RadioResourceConfigDedicatedSCell-r10
     cell.rr_cfg_ded_scell_r10_present                                       = true;
     cell.rr_cfg_ded_scell_r10.phys_cfg_ded_scell_r10_present                = true;
@@ -1977,19 +1978,19 @@ int rrc::ue::fill_scell_to_addmod_list(asn1::rrc::rrc_conn_recfg_r8_ies_s* conn_
     nonul_cfg_ded.pdsch_cfg_ded_r10.p_a.value                           = parent->cfg.pdsch_cfg.value;
     cell.rr_cfg_ded_scell_r10.phys_cfg_ded_scell_r10.ul_cfg_r10_present = true;
     auto& ul_cfg_ded                                  = cell.rr_cfg_ded_scell_r10.phys_cfg_ded_scell_r10.ul_cfg_r10;
-    ul_cfg_ded.ant_info_ul_r10_present                = true;
-    ul_cfg_ded.ant_info_ul_r10.tx_mode_ul_r10_present = true;
-    asn1::number_to_enum(ul_cfg_ded.ant_info_ul_r10.tx_mode_ul_r10, parent->cfg.cell.nof_ports);
-    ul_cfg_ded.pusch_cfg_ded_scell_r10_present           = true;
-    ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10_present         = true;
-    ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10.p0_ue_pusch_r10 = 0;
-    ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10.delta_mcs_enabled_r10.value =
-        ul_pwr_ctrl_ded_scell_r10_s::delta_mcs_enabled_r10_opts::en0;
-    ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10.accumulation_enabled_r10   = true;
-    ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10.psrs_offset_ap_r10_present = true;
-    ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10.psrs_offset_ap_r10         = 3;
-    ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10.pathloss_ref_linking_r10.value =
-        ul_pwr_ctrl_ded_scell_r10_s::pathloss_ref_linking_r10_opts::scell;
+    ul_cfg_ded.ant_info_ul_r10_present                = false;
+    // ul_cfg_ded.ant_info_ul_r10.tx_mode_ul_r10_present = true;
+    // asn1::number_to_enum(ul_cfg_ded.ant_info_ul_r10.tx_mode_ul_r10, parent->cfg.cell.nof_ports);
+    ul_cfg_ded.pusch_cfg_ded_scell_r10_present           = false;
+    ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10_present         = false;
+    // ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10.p0_ue_pusch_r10 = 0;
+    // ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10.delta_mcs_enabled_r10.value =
+    //    ul_pwr_ctrl_ded_scell_r10_s::delta_mcs_enabled_r10_opts::en0;
+    //ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10.accumulation_enabled_r10   = true;
+    //ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10.psrs_offset_ap_r10_present = true;
+    //ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10.psrs_offset_ap_r10         = 3;
+    //ul_cfg_ded.ul_pwr_ctrl_ded_scell_r10.pathloss_ref_linking_r10.value =
+    //    ul_pwr_ctrl_ded_scell_r10_s::pathloss_ref_linking_r10_opts::scell;
     ul_cfg_ded.cqi_report_cfg_scell_r10_present                               = true;
     ul_cfg_ded.cqi_report_cfg_scell_r10.nom_pdsch_rs_epre_offset_r10          = 0;
     ul_cfg_ded.cqi_report_cfg_scell_r10.cqi_report_periodic_scell_r10_present = true;
