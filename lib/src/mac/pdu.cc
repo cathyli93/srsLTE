@@ -770,6 +770,7 @@ bool sch_subh::set_scell_activation_cmd(const std::array<bool, SRSLTE_MAX_CARRIE
   for (uint8_t i = 1; i < SRSLTE_MAX_CARRIERS; ++i) {
     w_payload_ce[0] |= (static_cast<uint8_t>(active_scell_idxs[i]) << i);
   }
+  printf("[ca-debug] w_payload_ce=%d,size=%lu\n",unsigned(w_payload_ce[0]),active_scell_idxs.size()-1);
   lcid = (uint32_t)dl_sch_lcid::SCELL_ACTIVATION;
   ((sch_pdu*)parent)->update_space_ce(nof_octets);
   nof_bytes = nof_octets;

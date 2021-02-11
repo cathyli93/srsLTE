@@ -487,7 +487,12 @@ void ue::allocate_ce(srslte::sch_pdu* pdu, uint32_t lcid)
           phy->set_activation_deactivation_scell(rnti, active_scell_list);
           Info("CE:    Added SCell Activation CE.\n");
           // Allocate and initialize Rx/Tx softbuffers for new carriers (exclude PCell)
-          allocate_cc_buffers(active_scell_list.size() - 1);
+	  int active_sum = 0;
+	  for (size_t i = 0; i < active_scell_list.size(); i++) {
+		  active_sum += active_scell_list[i];
+	  }
+	  allocate_cc_buffers(active_sum);
+	  Info("[ca-debug] Finish allocating and initializing buffers, num=%d.\n", active_sum);
         } else {
           Error("CE:    Setting SCell Activation CE\n");
         }

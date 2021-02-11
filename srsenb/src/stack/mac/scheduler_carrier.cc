@@ -322,9 +322,19 @@ const sf_sched_result& sched::carrier_sched::generate_tti_result(uint32_t tti_rx
 
     bool dl_active = sf_dl_mask[tti_sched->get_tti_tx_dl() % sf_dl_mask.size()] == 0;
 
+    bool is_scell = false;
+    for (auto& ue_pair : *ue_db) {
+    	if (ue_pair.second.get_cell_index(enb_cc_idx).second > 0) {
+    	    is_scell = true;
+    	    // log_h->info("[ca-debug] rnti=0x%x, cc_idx=%d is SCell\n", &ue_pair.first, enb_cc_idx)
+	    break;
+	}
+    }
+    if (!is_scell) {
     /* Schedule PHICH */
     for (auto& ue_pair : *ue_db) {
       tti_sched->alloc_phich(&ue_pair.second, &sf_result->ul_sched_result);
+    }
     }
 
     /* Schedule DL control data */
@@ -342,6 +352,7 @@ const sf_sched_result& sched::carrier_sched::generate_tti_result(uint32_t tti_rx
 
     /* Prioritize PDCCH scheduling for DL and UL data in a RoundRobin fashion */
     if ((tti_rx % 2) == 0) {
+      if (!is_scell)
       alloc_ul_users(tti_sched);
     }
 
@@ -349,6 +360,7 @@ const sf_sched_result& sched::carrier_sched::generate_tti_result(uint32_t tti_rx
     alloc_dl_users(tti_sched);
 
     if ((tti_rx % 2) == 1) {
+      if (!is_scell)
       alloc_ul_users(tti_sched);
     }
 
