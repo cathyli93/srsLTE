@@ -119,6 +119,8 @@ void ue::reset()
  */
 uint32_t ue::allocate_cc_buffers(const uint32_t num_cc)
 {
+  if (softbuffer_tx.size() >= 2) 
+	  return softbuffer_tx.size();
   for (uint32_t i = 0; i < num_cc; ++i) {
     // create and init Rx buffers for Pcell
     softbuffer_rx.emplace_back();
@@ -484,13 +486,17 @@ void ue::allocate_ce(srslte::sch_pdu* pdu, uint32_t lcid)
           active_scell_list[enb_ue_cc_map[enb_cc_idx]] = true;
         }
         if (enb_cc_idx == enb_ue_cc_map.size() and pdu->get()->set_scell_activation_cmd(active_scell_list)) {
-          phy->set_activation_deactivation_scell(rnti, active_scell_list);
-          Info("CE:    Added SCell Activation CE.\n");
+          // phy->set_activation_deactivation_scell(rnti, active_scell_list);
+          // Info("CE:    Added SCell Activation CE.\n");
           // Allocate and initialize Rx/Tx softbuffers for new carriers (exclude PCell)
 	  int active_sum = 0;
 	  for (size_t i = 0; i < active_scell_list.size(); i++) {
 		  active_sum += active_scell_list[i];
 	  }
+	  if (active_sum > 0) {
+	    phy->set_activation_deactivation_scell(rnti, active_scell_list);
+	  }
+          Info("CE:    Added SCell Activation CE.\n");
 	  allocate_cc_buffers(active_sum);
 	  Info("[ca-debug] Finish allocating and initializing buffers, num=%d.\n", active_sum);
         } else {

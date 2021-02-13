@@ -170,6 +170,30 @@ void sched_ue::reset()
   }
 }
 
+// qr-deact
+void sched_ue::ue_deactivate_scell()
+{
+  bool is_changed = false;
+  if (cfg.supported_cc_list.size() > 1) {
+    if (cfg.supported_cc_list[1].active) {
+      printf("[ca-debug] sched_ue::ue_deactivate_scell cc_idx=%d\n", cfg.supported_cc_list[1].enb_cc_idx);
+      cfg.supported_cc_list[1].active = false;
+      is_changed = true;
+    }
+  }
+  if (carriers.size() > 1) {
+    if (carriers[1].is_active()) {
+      printf("[ca-debug] sched_ue::ue_deactivate_scell, carriers\n");
+      carriers[1].set_active(false);
+      is_changed = true;
+    }
+  }
+
+  if (is_changed) {
+    pending_ces.emplace_back(srslte::dl_sch_lcid::SCELL_ACTIVATION);
+    printf("[ca-debug] sched_ue::ue_deactivate_scell, enqueue Scell deactivation\n");
+  }
+}
 /*******************************************************
  *
  * FAPI-like main scheduler interface.

@@ -24,6 +24,7 @@
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
+#include <ctime> // qr-deact
 
 #include "srsenb/hdr/stack/mac/mac.h"
 #include "srslte/common/log.h"
@@ -414,6 +415,30 @@ int mac::cqi_info(uint32_t tti, uint16_t rnti, uint32_t enb_cc_idx, uint32_t cqi
   log_h->step(tti);
   srslte::rwlock_read_guard lock(rwlock);
 
+  std::array<int, SRSLTE_MAX_CARRIERS> enb_ue_cc_map = scheduler.get_enb_ue_cc_map(rnti);
+  //if (enb_ue_cc_map[enb_cc_idx] > 0) { //Scell
+  //  log_h->info("[ca-debug] CQI rnti=0x%x, cc_idx=%u, cqi=%u\n", rnti, enb_cc_idx, cqi_value);
+  //}
+  if (enb_ue_cc_map[enb_cc_idx] > 0 && cqi_value < 20) { //Scell
+    time_t now = time(0);
+    if (scell_act_time.count(rnti)) {
+      int second_diff = now - scell_act_time[rnti];
+      if (second_diff > 10 && ue_db.count(rnti)) {
+	scheduler.deactivate_scell(rnti);
+        log_h->info("[ca-debug] CQI rnti=0x%x, cc_idx=%u, cqi=%u, time_diff=%d\n", rnti, enb_cc_idx, cqi_value, second_diff);
+        printf("[ca-debug] CQI rnti=0x%x, cc_idx=%u, cqi=%u, time_diff=%d\n", rnti, enb_cc_idx, cqi_value, second_diff);
+        // ud_db[rnti]->enqueue_scell_act_deact();
+        scell_act_time.erase(rnti);
+      }
+    }
+    else
+      scell_act_time[rnti] = now;
+  }
+  else if (enb_ue_cc_map[enb_cc_idx] > 0 && cqi_value >= 20) {
+    if (scell_act_time.count(rnti)) {
+      scell_act_time.erase(rnti);
+    }
+  }
   if (ue_db.count(rnti)) {
     scheduler.dl_cqi_info(tti, rnti, enb_cc_idx, cqi_value);
     ue_db[rnti]->metrics_dl_cqi(cqi_value);

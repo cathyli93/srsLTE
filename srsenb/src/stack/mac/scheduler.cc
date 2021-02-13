@@ -196,6 +196,17 @@ int sched::cell_cfg(const std::vector<sched_interface::cell_cfg_t>& cell_cfg)
   return 0;
 }
 
+//qr-deact
+void sched::deactivate_scell(uint16_t rnti)
+{
+  std::lock_guard<std::mutex> lock(sched_mutex);
+  auto it = ue_db.find(rnti);
+  if (it != ue_db.end()) {
+    printf("[ca-debug] sched::deactivate_scell rnti=0x%x\n", rnti);
+    it->second.ue_deactivate_scell();
+  }
+}
+
 /*******************************************************
  *
  * FAPI-like main sched interface. Wrappers to UE object
