@@ -35,6 +35,7 @@
 #include "ta.h"
 #include "ue.h"
 #include <vector>
+#include <ctime> // qr-deact
 
 namespace srsenb {
 
@@ -131,7 +132,8 @@ private:
   /* Scheduler unit */
   sched                                    scheduler;
   std::vector<sched_interface::cell_cfg_t> cell_config;
-
+  // qr-deact
+  std::map<uint16_t, time_t> scell_act_time;
   sched_interface::dl_pdu_mch_t mch = {};
 
   /* Map of active UEs */

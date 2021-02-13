@@ -52,7 +52,8 @@ struct sched_ue_carrier {
   const sched_cell_params_t* get_cell_cfg() const { return cell_params; }
   bool                       is_active() const { return active; }
   void                       set_dl_cqi(uint32_t tti_tx_dl, uint32_t dl_cqi);
-
+  // qr-deact
+  void                       set_active(bool value) { active = value; }
   harq_entity harq_ent;
 
   uint32_t dl_ri      = 0;
@@ -121,7 +122,9 @@ public:
 
   void tpc_inc();
   void tpc_dec();
-
+  // qr-deact
+  void ue_deactivate_scell();
+ 
   const dl_harq_proc&              get_dl_harq(uint32_t idx, uint32_t cc_idx) const;
   uint16_t                         get_rnti() const { return rnti; }
   std::pair<bool, uint32_t>        get_cell_index(uint32_t enb_cc_idx) const;
