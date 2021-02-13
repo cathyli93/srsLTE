@@ -414,31 +414,54 @@ int mac::cqi_info(uint32_t tti, uint16_t rnti, uint32_t enb_cc_idx, uint32_t cqi
   int ret = SRSLTE_ERROR;
   log_h->step(tti);
   srslte::rwlock_read_guard lock(rwlock);
-
-  std::array<int, SRSLTE_MAX_CARRIERS> enb_ue_cc_map = scheduler.get_enb_ue_cc_map(rnti);
-  //if (enb_ue_cc_map[enb_cc_idx] > 0) { //Scell
-  //  log_h->info("[ca-debug] CQI rnti=0x%x, cc_idx=%u, cqi=%u\n", rnti, enb_cc_idx, cqi_value);
-  //}
-  if (enb_ue_cc_map[enb_cc_idx] > 0 && cqi_value < 20) { //Scell
-    time_t now = time(0);
-    if (scell_act_time.count(rnti)) {
-      int second_diff = now - scell_act_time[rnti];
-      if (second_diff > 10 && ue_db.count(rnti)) {
-	scheduler.deactivate_scell(rnti);
-        log_h->info("[ca-debug] CQI rnti=0x%x, cc_idx=%u, cqi=%u, time_diff=%d\n", rnti, enb_cc_idx, cqi_value, second_diff);
-        printf("[ca-debug] CQI rnti=0x%x, cc_idx=%u, cqi=%u, time_diff=%d\n", rnti, enb_cc_idx, cqi_value, second_diff);
-        // ud_db[rnti]->enqueue_scell_act_deact();
-        scell_act_time.erase(rnti);
+  if (tti % 1000 < 100) {  
+  bool scell_active = false;
+  uint32_t scell_cc_idx = scheduler.get_scell_cc_idx(rnti, scell_active);
+  if (scell_cc_idx == enb_cc_idx && scell_active) {
+    if (scell_deact_time.count(rnti)) {
+      scell_deact_time.erase(rnti);
+    }
+    if (cqi_value < 20) {
+      time_t now = time(0);
+      if (scell_act_time.count(rnti)) {
+        int second_diff = now - scell_act_time[rnti];
+        if (second_diff > 15 && ue_db.count(rnti)) {
+          log_h->info("[ca-debug] active CQI rnti=0x%x, cc_idx=%u, cqi=%u, time_diff=%d\n", rnti, enb_cc_idx, cqi_value, second_diff);
+          printf("[ca-debug] active CQI rnti=0x%x, cc_idx=%u, cqi=%u, time_diff=%d\n", rnti, enb_cc_idx, cqi_value, second_diff);
+          scheduler.deactivate_scell(rnti);
+          scell_act_time.erase(rnti);
+        }
+      }
+      else {
+        scell_act_time[rnti] = now;
       }
     }
-    else
-      scell_act_time[rnti] = now;
-  }
-  else if (enb_ue_cc_map[enb_cc_idx] > 0 && cqi_value >= 20) {
-    if (scell_act_time.count(rnti)) {
+    else if (scell_act_time.count(rnti)) {
       scell_act_time.erase(rnti);
     }
   }
+
+  else if (scell_cc_idx <= 1 && !scell_active) {
+    if (scell_act_time.count(rnti)) {
+      scell_act_time.erase(rnti);
+    }
+    // if (cqi_value >= 10) {
+    time_t now = time(0);
+    if (scell_deact_time.count(rnti)) {
+      int second_diff = now - scell_deact_time[rnti];
+      if (second_diff > 15 && ue_db.count(rnti)) {
+        log_h->info("[ca-debug] inactive rnti=0x%x, cc_idx=%u, time_diff=%d\n", rnti, scell_cc_idx, second_diff);
+        printf("[ca-debug] inactive rnti=0x%x, cc_idx=%u, time_diff=%d\n", rnti, scell_cc_idx, second_diff);
+        scheduler.activate_scell(rnti);
+        scell_deact_time.erase(rnti);
+      }
+    } else {
+      scell_deact_time[rnti] = now;
+    }
+  }
+  //qr-end 
+  }
+
   if (ue_db.count(rnti)) {
     scheduler.dl_cqi_info(tti, rnti, enb_cc_idx, cqi_value);
     ue_db[rnti]->metrics_dl_cqi(cqi_value);

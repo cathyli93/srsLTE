@@ -194,6 +194,28 @@ void sched_ue::ue_deactivate_scell()
     printf("[ca-debug] sched_ue::ue_deactivate_scell, enqueue Scell deactivation\n");
   }
 }
+
+void sched_ue::ue_activate_scell()
+{
+    bool is_changed = false;
+  if (cfg.supported_cc_list.size() > 1) {
+    if (!cfg.supported_cc_list[1].active) {
+      cfg.supported_cc_list[1].active = true;
+      is_changed = true;
+    }
+  }
+  if (carriers.size() > 1) {
+    if (!carriers[1].is_active()) {
+      carriers[1].set_active(true);
+      is_changed = true;
+    }
+  }
+
+  if (is_changed) {
+    pending_ces.emplace_back(srslte::dl_sch_lcid::SCELL_ACTIVATION);
+  }
+}
+// qr-end
 /*******************************************************
  *
  * FAPI-like main scheduler interface.
@@ -1096,6 +1118,16 @@ std::pair<bool, uint32_t> sched_ue::get_cell_index(uint32_t enb_cc_idx) const
   }
   return {false, std::numeric_limits<uint32_t>::max()};
 }
+
+// qr-deact
+std::pair<bool, uint32_t> sched_ue::get_scell_cc_idx() const
+{
+  if (cfg.supported_cc_list.size() < 2)
+    return {false, std::numeric_limits<uint32_t>::max()};
+  // printf("[ca-debug] SCell, active=%d, enb_cc_idx=%u\n", cfg.supported_cc_list[1].active, cfg.supported_cc_list[1].enb_cc_idx);
+  return {cfg.supported_cc_list[1].active, cfg.supported_cc_list[1].enb_cc_idx};
+}
+// qr-end
 
 uint32_t sched_ue::get_aggr_level(uint32_t ue_cc_idx, uint32_t nof_bits)
 {

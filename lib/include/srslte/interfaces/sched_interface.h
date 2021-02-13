@@ -300,6 +300,9 @@ public:
   virtual std::array<int, SRSLTE_MAX_CARRIERS> get_enb_ue_cc_map(uint16_t rnti)                     = 0;
   // qr-deact
   virtual void deactivate_scell(uint16_t rnti) = 0;
+  virtual void activate_scell(uint16_t rnti) = 0;
+  virtual uint32_t get_scell_cc_idx(uint16_t rnti, bool & is_active) = 0;
+  // qr-end
 };
 
 } // namespace srsenb
