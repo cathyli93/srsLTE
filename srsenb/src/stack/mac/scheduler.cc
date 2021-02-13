@@ -207,6 +207,28 @@ void sched::deactivate_scell(uint16_t rnti)
   }
 }
 
+void sched::activate_scell(uint16_t rnti)
+{
+  std::lock_guard<std::mutex> lock(sched_mutex);
+  auto it = ue_db.find(rnti);
+  if (it != ue_db.end()) {
+    it->second.ue_activate_scell();
+  }
+}
+
+uint32_t sched::get_scell_cc_idx(uint16_t rnti, bool& is_active)
+{
+  auto it = ue_db.find(rnti);
+  is_active = false;
+  if (it != ue_db.end()) {
+    auto p = it->second.get_scell_cc_idx();
+    is_active = p.first;
+    return p.second;
+  }
+  return -1;
+}
+//qr-end
+
 /*******************************************************
  *
  * FAPI-like main sched interface. Wrappers to UE object

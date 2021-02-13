@@ -137,7 +137,9 @@ public:
 
   // qr-deact
   void deactivate_scell(uint16_t rnti) final;
-
+  void activate_scell(uint16_t rnti) final;
+  uint32_t get_scell_cc_idx(uint16_t rnti, bool& is_active) final;
+  // qr-end
   class carrier_sched;
 
 protected:
