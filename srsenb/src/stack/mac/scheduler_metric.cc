@@ -240,7 +240,7 @@ ul_harq_proc* ul_metric_rr::allocate_user_retx_prbs(sched_ue* user)
     return nullptr;
   }
   auto p = user->get_cell_index(cc_cfg->enb_cc_idx);
-  if (not p.first) {
+  if (not p.first || p.second != 0) {
     // this cc is not activated for this user
     return nullptr;
   }
@@ -282,7 +282,7 @@ ul_harq_proc* ul_metric_rr::allocate_user_newtx_prbs(sched_ue* user)
     return nullptr;
   }
   auto p = user->get_cell_index(cc_cfg->enb_cc_idx);
-  if (not p.first) {
+  if (not p.first || p.second != 0) {
     // this cc is not activated for this user
     return nullptr;
   }

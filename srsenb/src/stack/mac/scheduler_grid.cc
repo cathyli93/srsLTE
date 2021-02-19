@@ -722,7 +722,7 @@ bool sf_sched::alloc_phich(sched_ue* user, sched_interface::ul_sched_res_t* ul_s
   auto& phich_list = ul_sf_result->phich[ul_sf_result->nof_phich_elems];
 
   auto p = user->get_cell_index(cc_cfg->enb_cc_idx);
-  if (not p.first) {
+  if (not p.first || p.second != 0) {
     // user does not support this carrier
     return false;
   }
