@@ -532,6 +532,13 @@ typedef struct {
   uint32_t                      nof_prb; ///< Needed to dimension MAC softbuffers for all cells
   sched_interface::sched_args_t sched;
   int                           link_failure_nof_err;
+  // qr-conf
+  std::string                   scell_act_policy; 
+  uint32_t                      scell_act_rbs;
+  std::string                   scell_deact_policy;
+  uint32_t                      scell_deact_rbs;
+  uint32_t                      scell_deact_cqi;
+  // qr-conf end
 } mac_args_t;
 
 class stack_interface_s1ap_lte
