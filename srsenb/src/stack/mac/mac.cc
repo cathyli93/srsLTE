@@ -70,6 +70,7 @@ bool mac::init(const mac_args_t&        args_,
     log_h = log_h_;
 
     args  = args_;
+    printf("[ca-debug] scell_act_policy=%s, scell_act_rbs=%uK, scell_deact_policy=%s, scell_deact_rbs=%uK, scell_deact_cqi=%u\n.", args.scell_act_policy.c_str(), args.scell_act_rbs, args.scell_deact_policy.c_str(), args.scell_deact_rbs, args.scell_deact_cqi); //qr-conf
     cells = cells_;
 
     stack_task_queue = stack->make_task_queue();
@@ -147,6 +148,8 @@ int mac::rlc_buffer_state(uint16_t rnti, uint32_t lc_id, uint32_t tx_queue, uint
   int                       ret = -1;
   if (ue_db.count(rnti)) {
     if (rnti != SRSLTE_MRNTI) {
+      if (args.scell_act_policy == "rbs" || args.scell_deact_policy == "rbs")
+        update_scell_state_rbs(rnti, tx_queue);
       ret = scheduler.dl_rlc_buffer_state(rnti, lc_id, tx_queue, retx_queue);
     } else {
       for (uint32_t i = 0; i < mch.num_mtch_sched; i++) {
@@ -414,7 +417,7 @@ int mac::cqi_info(uint32_t tti, uint16_t rnti, uint32_t enb_cc_idx, uint32_t cqi
   int ret = SRSLTE_ERROR;
   log_h->step(tti);
   srslte::rwlock_read_guard lock(rwlock);
-  if (tti % 1000 < 100) {  
+  /*if (tti % 1000 < 100) {  
   bool scell_active = false;
   uint32_t scell_cc_idx = scheduler.get_scell_cc_idx(rnti, scell_active);
   if (scell_cc_idx == enb_cc_idx && scell_active) {
@@ -460,7 +463,7 @@ int mac::cqi_info(uint32_t tti, uint16_t rnti, uint32_t enb_cc_idx, uint32_t cqi
     }
   }
   //qr-end 
-  }
+  }*/
 
   if (ue_db.count(rnti)) {
     scheduler.dl_cqi_info(tti, rnti, enb_cc_idx, cqi_value);
@@ -940,6 +943,57 @@ bool mac::process_pdus()
   }
   return ret;
 }
+
+//qr-conf
+void mac::update_scell_state_rbs(uint16_t rnti, uint32_t tx_queue)
+{
+  bool scell_active = false;
+  uint32_t scell_cc_idx = scheduler.get_scell_cc_idx(rnti, scell_active);
+
+  if (scell_cc_idx <= 1 && scell_active) {
+    scell_deact_time.erase(rnti);
+    if (tx_queue < args.scell_deact_rbs * 1000) {
+      time_t now = time(0);
+      if (scell_act_time.count(rnti)) {
+        int second_diff = now - scell_act_time[rnti];
+        if (second_diff > 10 && ue_db.count(rnti)) {
+          log_h->info("[ca-debug] active CQI rnti=0x%x, cc_idx=%u, rbs=%u, time_diff=%d\n", rnti, scell_cc_idx, tx_queue, second_diff);
+          printf("[ca-debug] active CQI rnti=0x%x, cc_idx=%u, rbs=%u, time_diff=%d\n", rnti, scell_cc_idx, tx_queue, second_diff);
+          scheduler.deactivate_scell(rnti);
+          scell_act_time.erase(rnti);
+        }
+      }
+      else {
+        scell_act_time[rnti] = now;
+      }
+    }
+    else {
+      scell_act_time.erase(rnti);
+    }
+  }
+
+  else if (scell_cc_idx <= 1 && !scell_active) {
+    scell_act_time.erase(rnti);
+    if (tx_queue > args.scell_act_rbs * 1000) {
+      time_t now = time(0);
+      if (scell_deact_time.count(rnti)) {
+        int second_diff = now - scell_deact_time[rnti];
+        if (second_diff > 10 && ue_db.count(rnti)) {
+          log_h->info("[ca-debug] inactive rnti=0x%x, cc_idx=%u, rbs=%u, time_diff=%d\n", rnti, scell_cc_idx, tx_queue, second_diff);
+          printf("[ca-debug] inactive rnti=0x%x, cc_idx=%u, rbs=%u, time_diff=%d\n", rnti, scell_cc_idx, tx_queue, second_diff);
+          scheduler.activate_scell(rnti);
+          scell_deact_time.erase(rnti);
+        }
+      } else {
+        scell_deact_time[rnti] = now;
+      }
+    }
+    else {
+      scell_deact_time.erase(rnti);
+    }
+  }
+}
+// qr-conf end
 
 void mac::write_mcch(sib_type2_s* sib2_, sib_type13_r9_s* sib13_, mcch_msg_s* mcch_)
 {

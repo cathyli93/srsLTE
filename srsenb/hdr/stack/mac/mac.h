@@ -97,6 +97,7 @@ public:
   int rlc_buffer_state(uint16_t rnti, uint32_t lc_id, uint32_t tx_queue, uint32_t retx_queue) override;
 
   bool process_pdus();
+  void update_scell_state_rbs(uint16_t rnti, uint32_t tx_queue); //qr-conf
 
   void get_metrics(mac_metrics_t metrics[ENB_METRICS_MAX_USERS]);
   void
