@@ -475,7 +475,7 @@ public:
 class buffer_interface_rlc
 {
 public:
-  virtual void update_buffer_state(uint16_t rnti, uint32_t lcid, int nof_unread_packets, int nof_unread_bytes) = 0;
+  virtual void update_buffer_state(uint16_t rnti, uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes) = 0;
 };
 
 // Buffer interface for RRC

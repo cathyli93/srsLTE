@@ -43,7 +43,7 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
   	nof_packets -= buffer_map[rnti].get_user_nof_packets();
   	nof_bytes -= buffer_map[rnti].get_user_nof_bytes();
   }
-  else (!buffer_map.count(rnti)) {
+  else {
   	buffer_map[rnti] = user_buffer_state();
   	// gtpu_queue.push(std::make_pair(rnti, &buffer_map[rnti]))
   }
