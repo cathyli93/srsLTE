@@ -43,7 +43,8 @@ public:
             rrc_interface_rlc*     rrc_,
             mac_interface_rlc*     mac_,
             srslte::timer_handler* timers_,
-            srslte::log_ref        log_h);
+            srslte::log_ref        log_h,
+            buffer_interface_rlc*  gtpu_buf_);
   void stop();
 
   // rlc_interface_rrc

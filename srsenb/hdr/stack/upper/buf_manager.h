@@ -41,7 +41,8 @@ class gtpu_buffer_manager : public buffer_interface_gtpu, public buffer_interfac
 public:
   gtpu_buffer_manager() : buf_log("BUFM") { }
 
-  int init(rlc_interface_bufmng* rlc_);
+  // int init(rlc_interface_bufmng* rlc_);
+  int init();
   // void stop();
 
   // interfaces for GTPU
@@ -70,7 +71,7 @@ private:
   class user_buffer_state {
   public:
   	user_buffer_state() { pthread_mutex_init(&mutex, NULL); }
-  	~user_buffer_state() { pthread_mutex_destroy(&mutex, NULL); }
+  	~user_buffer_state() { pthread_mutex_destroy(&mutex); }
   	void update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
   	int get_user_nof_packets() { return user_nof_packets; }
   	int get_user_nof_bytes() { return user_nof_bytes; }

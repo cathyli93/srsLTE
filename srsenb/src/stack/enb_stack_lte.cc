@@ -105,7 +105,7 @@ int enb_stack_lte::init(const stack_args_t& args_, const rrc_cfg_t& rrc_cfg_)
   // rlc.init(&pdcp, &rrc, &mac, &timers, rlc_log);
   rlc.init(&pdcp, &rrc, &mac, &timers, rlc_log, &gtpu_buf); // qr-buf
   pdcp.init(&rlc, &rrc, &gtpu);
-  rrc.init(rrc_cfg, phy, &mac, &rlc, &pdcp, &s1ap, &gtpu, &timers);
+  rrc.init(rrc_cfg, phy, &mac, &rlc, &pdcp, &s1ap, &gtpu, &timers, &gtpu_buf);
   if (s1ap.init(args.s1ap, &rrc, &timers, this) != SRSLTE_SUCCESS) {
     stack_log->error("Couldn't initialize S1AP\n");
     return SRSLTE_ERROR;

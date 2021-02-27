@@ -62,7 +62,7 @@ public:
             s1ap_interface_rrc*    s1ap,
             gtpu_interface_rrc*    gtpu,
             srslte::timer_handler* timers_,
-            buffer_interface_rrc* gtpu_buf);
+            buffer_interface_rrc*  gtpu_buf);
 
   void stop();
   void get_metrics(rrc_metrics_t& m);

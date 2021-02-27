@@ -11,8 +11,9 @@
 using namespace srslte;
 namespace srsenb {
 
-int gtpu_buffer_manager::init(srsenb::rlc_interface_bufmng* rlc_) {
-  rlc = rlc_;
+int gtpu_buffer_manager::init() {
+// int gtpu_buffer_manager::init(srsenb::rlc_interface_bufmng* rlc_) {
+  // rlc = rlc_;
   buf_log->set_level(LOG_LEVEL_INFO);
 }
 

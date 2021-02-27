@@ -52,7 +52,7 @@ void rrc::init(const rrc_cfg_t&       cfg_,
                s1ap_interface_rrc*    s1ap_,
                gtpu_interface_rrc*    gtpu_,
                srslte::timer_handler* timers_,
-               buffer_interface_rrc* gtpu_buf_) //qr-buf
+               buffer_interface_rrc*  gtpu_buf_) //qr-buf
 {
   phy    = phy_;
   mac    = mac_;
