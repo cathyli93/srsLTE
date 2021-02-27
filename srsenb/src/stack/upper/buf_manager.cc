@@ -56,6 +56,8 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
 
 bool gtpu_buffer_manager::check_space_new_sdu(uint16_t rnti)
 {
+  int size = buffer_map.size();
+  buf_log->info("[buf-debug] user rnti=%u, size_of_map=%u\n", rnti, size);
   if (buffer_map.size() > 0) {
     uint32_t max_rnti = buffer_map.begin()->first;
     for (user_buffer_state_map_t::iterator it = buffer_map.begin(); it != buffer_map.end(); ++it ){
