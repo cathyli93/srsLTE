@@ -39,28 +39,47 @@ void gtpu_buffer_manager::rem_user(uint16_t rnti)
 
 void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
 {
-  if (buffer_map.count(rnti)) {
-    buf_log->info("[buf-debug] Before update: nof_unread_packets=%u, nof_unread_bytes=%u, nof_packets=%u, nof_bytes=%u\n", nof_unread_packets, nof_unread_bytes, nof_packets, nof_bytes);
-  	nof_packets -= buffer_map[rnti].get_user_nof_packets();
-  	nof_bytes -= buffer_map[rnti].get_user_nof_bytes();
-  }
-  else {
-    buf_log->info("[buf-debug] New rnti: nof_unread_packets=%u, nof_unread_bytes=%u, nof_packets=%u, nof_bytes=%u\n", nof_unread_packets, nof_unread_bytes, nof_packets, nof_bytes);
-  	buffer_map[rnti] = user_buffer_state();
-  	// gtpu_queue.push(std::make_pair(rnti, &buffer_map[rnti]))
-  }
-  buffer_map[rnti].update_buffer_state(lcid, nof_unread_packets, nof_unread_bytes);
-  nof_packets += buffer_map[rnti].get_user_nof_packets();
-  nof_bytes += buffer_map[rnti].get_user_nof_bytes();
+  // if (buffer_map.count(rnti)) {
+  //   buf_log->info("[buf-debug] Before update: nof_unread_packets=%u, nof_unread_bytes=%u, nof_packets=%u, nof_bytes=%u\n", nof_unread_packets, nof_unread_bytes, nof_packets, nof_bytes);
+  // 	nof_packets -= buffer_map[rnti].get_user_nof_packets();
+  // 	nof_bytes -= buffer_map[rnti].get_user_nof_bytes();
+  // }
+  // else {
+  //   buf_log->info("[buf-debug] New rnti: nof_unread_packets=%u, nof_unread_bytes=%u, nof_packets=%u, nof_bytes=%u\n", nof_unread_packets, nof_unread_bytes, nof_packets, nof_bytes);
+  // 	buffer_map[rnti] = user_buffer_state();
+  // 	// gtpu_queue.push(std::make_pair(rnti, &buffer_map[rnti]))
+  // }
+  // buffer_map[rnti].update_buffer_state(lcid, nof_unread_packets, nof_unread_bytes);
+  // nof_packets += buffer_map[rnti].get_user_nof_packets();
+  // nof_bytes += buffer_map[rnti].get_user_nof_bytes();
 
-  buf_log->info("[buf-debug] After update new nof_packets=%u, new nof_bytes=%u\n", nof_packets, nof_bytes);
+  // buf_log->info("[buf-debug] After update new nof_packets=%u, new nof_bytes=%u\n", nof_packets, nof_bytes);
+  if (!buffer_map.count(rnti)) {
+    // buf_log->info("[buf-debug] New rnti: nof_unread_packets=%u, nof_unread_bytes=%u, nof_packets=%u, nof_bytes=%u\n", nof_unread_packets, nof_unread_bytes, nof_packets, nof_bytes);
+    buffer_map[rnti] = user_buffer_state();
+    // gtpu_queue.push(std::make_pair(rnti, &buffer_map[rnti]))
+  }
+  buf_log->info("[buf-debug] Update rnti=0x%x, lcid=%u, nof_unread_packets=%u, nof_unread_bytes=%u\n", rnti, lcid, nof_unread_packets, nof_unread_bytes);
+  buffer_map[rnti].update_buffer_state(lcid, nof_unread_packets, nof_unread_bytes);
+  // nof_packets += buffer_map[rnti].get_user_nof_packets();
+  // nof_bytes += buffer_map[rnti].get_user_nof_bytes();
+}
+
+uint32_t gtpu_buffer_manager::compute_nof_packets()
+{
+  uint32_t total = 0;
+  for (auto it = buffer_map.begin(); it != buffer_map.end(); it++) {
+    total += it->second.compute_nof_packets();
+  }
+  return total;
 }
 
 bool gtpu_buffer_manager::check_space_new_sdu(uint16_t rnti)
 {
-  if (nof_packets >= BUF_CAPACITY_PKT) {
+  uint32_t total_packets = compute_nof_packets();
+  if (total_packets >= BUF_CAPACITY_PKT) {
     int size = buffer_map.size();
-    buf_log->info("[buf-debug] user rnti=0x%x, size_of_map=%d, nof_packets=%u\n", rnti, size, nof_packets);
+    buf_log->info("[buf-debug] fit user rnti=0x%x, size_of_map=%d, nof_packets=%u\n", rnti, size, total_packets);
   }
   // if (buffer_map.size() > 0) {
   //   uint32_t max_rnti = buffer_map.begin()->first;
@@ -105,12 +124,12 @@ bool gtpu_buffer_manager::check_space_new_sdu(uint16_t rnti)
 void user_buffer_state::update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
 {
   pthread_mutex_lock(&mutex);
-  user_nof_packets += nof_unread_packets;
-  user_nof_bytes += nof_unread_bytes;
-  if (user_buffer_map.count(lcid)) {
-  	user_nof_packets -= user_buffer_map[lcid].first;
-  	user_nof_bytes -= user_buffer_map[lcid].second;
-  }
+  // user_nof_packets += nof_unread_packets;
+  // user_nof_bytes += nof_unread_bytes;
+  // if (user_buffer_map.count(lcid)) {
+  // 	user_nof_packets -= user_buffer_map[lcid].first;
+  // 	user_nof_bytes -= user_buffer_map[lcid].second;
+  // }
   user_buffer_map[lcid] = std::make_pair(nof_unread_packets, nof_unread_bytes);
   pthread_mutex_unlock(&mutex);
 }
@@ -122,6 +141,17 @@ void user_buffer_state::set_buffer_state(uint32_t nof_unread_packets, uint32_t n
   user_nof_packets = nof_unread_packets;
   user_nof_bytes = nof_unread_bytes;
   pthread_mutex_unlock(&mutex);
+}
+
+void user_buffer_state::compute_nof_packets()
+{
+  pthread_mutex_lock(&mutex);
+  uint32_t total = 0;
+  for (auto it=user_buffer_map.begin(); it != user_buffer_map.end(); it++) {
+    total += it->second.first;
+  }
+  pthread_mutex_unlock(&mutex);
+  return total;
 }
 
 } // namespace srsenb

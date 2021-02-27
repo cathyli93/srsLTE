@@ -46,6 +46,7 @@ namespace srsenb {
     void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
 
   private:
+    uint32_t compute_nof_packets(); 
     typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
     typedef std::map<uint32_t, buffer_state_pair_t>  lch_buffer_state_map_t;
     lch_buffer_state_map_t user_buffer_map;
@@ -93,6 +94,7 @@ public:
 private:
 
   // void update_priority_value(uint16_t rnti, uint32_t lcid);
+  uint32_t compute_nof_packets();
 
   static const int BUF_CAPACITY_PKT = 128;
 
