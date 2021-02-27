@@ -147,7 +147,8 @@ private:
     if (mutexed_callback) {
       mutexed_callback->popping(*value); // TODO: Value might be null!
     }
-    q.pop();
+    // q.pop();
+    q.pop_front();
     ret = true;
     pthread_cond_signal(&cv_full);
   exit:
@@ -189,7 +190,8 @@ private:
       if (mutexed_callback) {
         mutexed_callback->pushing(value);
       }
-      q.push(std::move(value));
+      // q.push(std::move(value));
+      q.push_back(std::move(value));
       pthread_cond_signal(&cv_empty);
     }
     pthread_mutex_unlock(&mutex);
@@ -207,7 +209,8 @@ private:
       if (mutexed_callback) {
         mutexed_callback->pushing(value);
       }
-      q.push(value);
+      // q.push(value);
+      q.push_back(value);
       pthread_cond_signal(&cv_empty);
     }
     pthread_mutex_unlock(&mutex);

@@ -102,20 +102,25 @@ int enb_stack_lte::init(const stack_args_t& args_, const rrc_cfg_t& rrc_cfg_)
 
   // Init all layers
   mac.init(args.mac, rrc_cfg.cell_list, phy, &rlc, &rrc, this, mac_log);
-  rlc.init(&pdcp, &rrc, &mac, &timers, rlc_log);
+  // rlc.init(&pdcp, &rrc, &mac, &timers, rlc_log);
+  rlc.init(&pdcp, &rrc, &mac, &timers, rlc_log, &gtpu_buf); // qr-buf
   pdcp.init(&rlc, &rrc, &gtpu);
   rrc.init(rrc_cfg, phy, &mac, &rlc, &pdcp, &s1ap, &gtpu, &timers);
   if (s1ap.init(args.s1ap, &rrc, &timers, this) != SRSLTE_SUCCESS) {
     stack_log->error("Couldn't initialize S1AP\n");
     return SRSLTE_ERROR;
   }
+
+  gtpu_buf.init(&rlc); // qr-buf
+
   if (gtpu.init(args.s1ap.gtp_bind_addr,
                 args.s1ap.mme_addr,
                 args.embms.m1u_multiaddr,
                 args.embms.m1u_if_addr,
                 &pdcp,
                 this,
-                args.embms.enable)) {
+                args.embms.enable,
+                &gtpu_buf)) { //qr-buf
     stack_log->error("Couldn't initialize GTPU\n");
     return SRSLTE_ERROR;
   }

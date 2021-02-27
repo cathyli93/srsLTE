@@ -84,12 +84,12 @@ private:
     srsenb::rrc_interface_rlc*   rrc;
     std::unique_ptr<srslte::rlc> rlc;
     srsenb::rlc*                 parent;
-    srsenb::buffer_interface_rlc* gtpu_buf;
   };
 
   pthread_rwlock_t rwlock;
 
   std::map<uint32_t, user_interface> users;
+  srsenb::buffer_interface_rlc* gtpu_buf;
   std::vector<mch_service_t>         mch_services;
 
   mac_interface_rlc*        mac;

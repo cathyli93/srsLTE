@@ -483,7 +483,7 @@ class buffer_interface_rrc
 {
 public:
   virtual void rem_user(uint16_t rnti)  = 0;
-}
+};
 /* qr-buf end */
 
 // S1AP interface for RRC
