@@ -62,6 +62,8 @@ public:
   int      read_pdu(uint8_t* payload, uint32_t nof_bytes) override;
   void     write_pdu(uint8_t* payload, uint32_t nof_bytes) override;
 
+  void get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes) {}
+
 private:
   byte_buffer_pool*          pool = nullptr;
   srslte::log_ref            log;

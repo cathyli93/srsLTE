@@ -63,6 +63,8 @@ public:
   void     write_pdu(uint8_t* payload, uint32_t nof_bytes);
   int      get_increment_sequence_num();
 
+  void get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes) {}
+
   rlc_bearer_metrics_t get_metrics();
   void                 reset_metrics();
 
