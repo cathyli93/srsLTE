@@ -25,10 +25,10 @@ void gtpu_buffer_manager::rem_user(uint16_t rnti)
   	nof_packets -= buffer_map[rnti].user_nof_packets;
   	nof_bytes -= buffer_map[rnti].user_nof_bytes;
 
-	buffer_map[rnti].set_buffer_state(BUF_CAPACITY_PKT * 3, BUF_CAPACITY_PKT * 5000);
-	if (gtpu_queue.top().first == rnti) 
-	  gtpu_queue.pop();
-	buffer_map.erase(rnti);
+	// buffer_map[rnti].set_buffer_state(BUF_CAPACITY_PKT * 3, BUF_CAPACITY_PKT * 5000);
+	// if (gtpu_queue.top().first == rnti) 
+	//   gtpu_queue.pop();
+	  buffer_map.erase(rnti);
   }
 }
 
@@ -40,7 +40,7 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
   }
   else (!buffer_map.count(rnti)) {
   	buffer_map[rnti] = user_buffer_state();
-  	gtpu_queue.push(std::make_pair(rnti, &buffer_map[rnti]))
+  	// gtpu_queue.push(std::make_pair(rnti, &buffer_map[rnti]))
   }
   buffer_map[rnti].update_buffer_state(lcid, nof_unread_packets, nof_unread_bytes);
   nof_packets += buffer_map[rnti].get_user_nof_packets();
@@ -51,6 +51,14 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
 
 bool gtpu_buffer_manager::check_space_new_sdu(uint16_t rnti)
 {
+  if (buffer_map.size() > 0) {
+    uint32_t max_rnti = buffer_map.begin()->first;
+    for (auto it = buffer_map.begin(); it != buffer_map.end(); ++it ){
+      if (it->second.get_user_nof_packets() > buffer_map.at(max_rnti).second.get_user_nof_packets())
+        max_rnti = it->first;
+    }
+    buf_log->info("[buf-debug] Most busy user rnti=%u, nof_packets=%u\n", max_rnti, buffer_map.at(max_rnti).second.get_user_nof_packets());
+  }
 	return true;
 	// if (nof_packets >= BUF_CAPACITY_PKT) {
 	//   if (gtpu_queue.top().first != rnti) {

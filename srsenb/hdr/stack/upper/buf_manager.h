@@ -40,8 +40,8 @@ namespace srsenb {
     user_buffer_state() { pthread_mutex_init(&mutex, NULL); }
     ~user_buffer_state() { pthread_mutex_destroy(&mutex); }
     void update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
-    int get_user_nof_packets() { return user_nof_packets; }
-    int get_user_nof_bytes() { return user_nof_bytes; }
+    uint32_t get_user_nof_packets() { return user_nof_packets; }
+    uint32_t get_user_nof_bytes() { return user_nof_bytes; }
     // int get_priority_value() { return -user_nof_packets; }
     void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes) { user_nof_packets = nof_unread_packets; user_nof_bytes = nof_unread_bytes; }
 
@@ -55,9 +55,9 @@ namespace srsenb {
     pthread_mutex_t mutex;
   };
 
-bool my_cmp(std::pair<uint16_t, user_buffer_state*> left, std::pair<uint16_t, user_buffer_state*> right) {
-  return left.second->get_user_nof_packets() < right.second->get_user_nof_packets();
-}
+// bool my_cmp(std::pair<uint16_t, user_buffer_state*> left, std::pair<uint16_t, user_buffer_state*> right) {
+//   return left.second->get_user_nof_packets() < right.second->get_user_nof_packets();
+// }
 
 class gtpu_buffer_manager : public buffer_interface_gtpu, public buffer_interface_rlc, public buffer_interface_rrc
 {
@@ -101,7 +101,7 @@ private:
   // auto cmp = [](std::pair<uint16_t, double> left, std::pair<uint16_t, double> right) { return left.second > right.second; };
   // std::priority_queue<std::pair<uint16_t, double>, std::vector<std::pair<uint16_t, double>>, decltype(cmp)> gtpu_queue(cmp);
   
-  std::priority_queue<std::pair<uint16_t, user_buffer_state*>, std::vector<std::pair<uint16_t, user_buffer_state*>>, std::function<bool(std::pair<uint16_t, user_buffer_state*>, std::pair<uint16_t, user_buffer_state*>)>> gtpu_queue(my_cmp);
+  // std::priority_queue<std::pair<uint16_t, user_buffer_state*>, std::vector<std::pair<uint16_t, user_buffer_state*>>, std::function<bool(std::pair<uint16_t, user_buffer_state*>, std::pair<uint16_t, user_buffer_state*>)>> gtpu_queue(my_cmp);
   
   typedef std::map<uint16_t, user_buffer_state>  user_buffer_state_map_t;
   user_buffer_state_map_t buffer_map;
