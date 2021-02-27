@@ -82,7 +82,8 @@ bool gtpu_buffer_manager::check_space_new_sdu(uint16_t rnti)
 
 // }
 
-void gtpu_buffer_manager::user_buffer_state::update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
+// void gtpu_buffer_manager::user_buffer_state::update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
+void user_buffer_state::update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
 {
   pthread_mutex_lock(&mutex);
   user_nof_packets += nof_unread_packets;
@@ -95,7 +96,8 @@ void gtpu_buffer_manager::user_buffer_state::update_buffer_state(uint32_t lcid, 
   pthread_mutex_unlock(&mutex);
 }
 
-void gtpu_buffer_manager::user_buffer_state::set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
+// void gtpu_buffer_manager::user_buffer_state::set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
+void user_buffer_state::set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
 {
   pthread_mutex_lock(&mutex);
   user_nof_packets = nof_unread_packets;
