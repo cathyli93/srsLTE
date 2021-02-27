@@ -39,8 +39,8 @@ int gtpu::init(std::string                  gtp_bind_addr_,
                std::string                  m1u_if_addr_,
                srsenb::pdcp_interface_gtpu* pdcp_,
                stack_interface_gtpu_lte*    stack_,
-               bool                         enable_mbsfn_,
-               srsenb::buffer_interface_gtpu* gtpu_buf_) //qr-buf
+               srsenb::buffer_interface_gtpu* gtpu_buf_, //qr-buf
+               bool                         enable_mbsfn_) 
 {
   pdcp          = pdcp_;
   gtp_bind_addr = gtp_bind_addr_;

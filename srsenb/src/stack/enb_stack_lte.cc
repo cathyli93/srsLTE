@@ -120,8 +120,8 @@ int enb_stack_lte::init(const stack_args_t& args_, const rrc_cfg_t& rrc_cfg_)
                 args.embms.m1u_if_addr,
                 &pdcp,
                 this,
-                args.embms.enable,
-                &gtpu_buf)) { //qr-buf
+                &gtpu_buf, //qr-buf
+                args.embms.enable)) {
     stack_log->error("Couldn't initialize GTPU\n");
     return SRSLTE_ERROR;
   }
