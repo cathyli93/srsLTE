@@ -76,7 +76,7 @@ public:
   bool check_space_new_sdu(uint16_t rnti);
 
   // interface for RLC
-  void update_buffer_state(uint16_t rnti, uint32_t lcid, int nof_unread_packets, int nof_unread_bytes);
+  void update_buffer_state(uint16_t rnti, uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
 
   // interface for RRC
   void rem_user(uint16_t rnti);
