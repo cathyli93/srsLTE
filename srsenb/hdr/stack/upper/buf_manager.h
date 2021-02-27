@@ -66,7 +66,7 @@ public:
 
   // int init(rlc_interface_bufmng* rlc_);
   int init();
-  // void stop();
+  void stop();
 
   // interfaces for GTPU
   // void add_bearer(uint16_t rnti, uint32_t lcid);

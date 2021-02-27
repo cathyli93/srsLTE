@@ -165,6 +165,7 @@ void enb_stack_lte::stop_impl()
   rlc.stop();
   pdcp.stop();
   rrc.stop();
+  gtpu_buf.stop();
 
   if (args.mac_pcap.enable) {
     mac_pcap.close();

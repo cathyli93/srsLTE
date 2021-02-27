@@ -17,6 +17,10 @@ int gtpu_buffer_manager::init() {
   buf_log->set_level(LOG_LEVEL_INFO);
 }
 
+void gtpu_buffer_manager::stop() {
+  buffer_map.clear();
+}
+
 void gtpu_buffer_manager::rem_user(uint16_t rnti)
 {
   buf_log->info("[buf-debug] Remove user rnti=%u\n", rnti);
