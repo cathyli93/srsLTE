@@ -55,7 +55,7 @@ namespace srsenb {
     pthread_mutex_t mutex;
   };
 
-bool cmp(std::pair<uint16_t, user_buffer_state*> left, std::pair<uint16_t, user_buffer_state*> right) {
+bool my_cmp(std::pair<uint16_t, user_buffer_state*> left, std::pair<uint16_t, user_buffer_state*> right) {
   return left.second->get_user_nof_packets() < right.second->get_user_nof_packets();
 }
 
@@ -101,7 +101,7 @@ private:
   // auto cmp = [](std::pair<uint16_t, double> left, std::pair<uint16_t, double> right) { return left.second > right.second; };
   // std::priority_queue<std::pair<uint16_t, double>, std::vector<std::pair<uint16_t, double>>, decltype(cmp)> gtpu_queue(cmp);
   
-  std::priority_queue<std::pair<uint16_t, user_buffer_state*>, std::vector<std::pair<uint16_t, user_buffer_state*>>, std::function<bool(std::pair<uint16_t, user_buffer_state*>, std::pair<uint16_t, user_buffer_state*>)>> gtpu_queue(cmp);
+  std::priority_queue<std::pair<uint16_t, user_buffer_state*>, std::vector<std::pair<uint16_t, user_buffer_state*>>, std::function<bool(std::pair<uint16_t, user_buffer_state*>, std::pair<uint16_t, user_buffer_state*>)>> gtpu_queue(my_cmp);
   
   typedef std::map<uint16_t, user_buffer_state>  user_buffer_state_map_t;
   user_buffer_state_map_t buffer_map;

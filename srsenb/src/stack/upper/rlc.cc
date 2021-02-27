@@ -166,15 +166,15 @@ int rlc::read_pdu(uint16_t rnti, uint32_t lcid, uint8_t* payload, uint32_t nof_b
   int      ret;
   uint32_t tx_queue;
   uint32_t nof_sdus;
-  uint32_t nof_bytes; //qr-buf
+  uint32_t nof_sdu_bytes; //qr-buf
 
   pthread_rwlock_rdlock(&rwlock);
   if (users.count(rnti)) {
     if (rnti != SRSLTE_MRNTI) {
       ret      = users[rnti].rlc->read_pdu(lcid, payload, nof_bytes);
       tx_queue = users[rnti].rlc->get_buffer_state(lcid);
-      users[rnti].rlc->get_buffer_unread_data(lcid, nof_sdus, nof_bytes); // qr-buf
-      gtpu_buf->update_buffer_state(rnti, lcid, nof_sdus, nof_bytes); // qr-buf
+      users[rnti].rlc->get_buffer_unread_data(lcid, nof_sdus, nof_sdu_bytes); // qr-buf
+      gtpu_buf->update_buffer_state(rnti, lcid, nof_sdus, nof_sdu_bytes); // qr-buf
     } else {
       ret      = users[rnti].rlc->read_pdu_mch(lcid, payload, nof_bytes);
       tx_queue = users[rnti].rlc->get_total_mch_buffer_state(lcid);
