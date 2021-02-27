@@ -139,7 +139,7 @@ uint32_t rlc_um_base::get_buffer_state()
 void rlc_um_base::get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes)
 {
   if (tx) {
-    tx->get_buffer_unread_data();
+    tx->get_buffer_unread_data(nof_pkts, nof_bytes);
   }
   // return 0;
 }
