@@ -44,9 +44,9 @@ namespace srsenb {
     uint32_t get_user_nof_bytes() { return user_nof_bytes; }
     // int get_priority_value() { return -user_nof_packets; }
     void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
+    uint32_t compute_nof_packets();
 
   private:
-    uint32_t compute_nof_packets(); 
     typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
     typedef std::map<uint32_t, buffer_state_pair_t>  lch_buffer_state_map_t;
     lch_buffer_state_map_t user_buffer_map;
