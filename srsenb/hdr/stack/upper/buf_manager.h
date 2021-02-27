@@ -65,7 +65,7 @@ public:
   gtpu_buffer_manager() : buf_log("BUFM") { }
 
   // int init(rlc_interface_bufmng* rlc_);
-  int init();
+  void init();
   void stop();
 
   // interfaces for GTPU

@@ -1,6 +1,7 @@
 // #include "srslte/upper/gtpu.h"
 #include "srsenb/hdr/stack/upper/buf_manager.h"
 // #include "srslte/common/network_utils.h"
+#include "srslte/common/log.h"
 #include <errno.h>
 #include <fcntl.h>
 // #include <linux/ip.h>
@@ -11,7 +12,7 @@
 // using namespace srslte;
 namespace srsenb {
 
-int gtpu_buffer_manager::init() {
+void gtpu_buffer_manager::init() {
 // int gtpu_buffer_manager::init(srsenb::rlc_interface_bufmng* rlc_) {
   // rlc = rlc_;
   buf_log->set_level(LOG_LEVEL_INFO);
@@ -26,8 +27,8 @@ void gtpu_buffer_manager::rem_user(uint16_t rnti)
   buf_log->info("[buf-debug] Remove user rnti=%u\n", rnti);
 
   if (buffer_map.count(rnti)) {
-  	nof_packets -= buffer_map[rnti].user_nof_packets;
-  	nof_bytes -= buffer_map[rnti].user_nof_bytes;
+  	nof_packets -= buffer_map[rnti].get_user_nof_packets();
+  	nof_bytes -= buffer_map[rnti].get_user_nof_bytes();
 
 	// buffer_map[rnti].set_buffer_state(BUF_CAPACITY_PKT * 3, BUF_CAPACITY_PKT * 5000);
 	// if (gtpu_queue.top().first == rnti) 
@@ -58,10 +59,10 @@ bool gtpu_buffer_manager::check_space_new_sdu(uint16_t rnti)
   if (buffer_map.size() > 0) {
     uint32_t max_rnti = buffer_map.begin()->first;
     for (auto it = buffer_map.begin(); it != buffer_map.end(); ++it ){
-      if (it->second.get_user_nof_packets() > buffer_map.at(max_rnti).second.get_user_nof_packets())
+      if (it->second.get_user_nof_packets() > buffer_map.at(max_rnti).get_user_nof_packets())
         max_rnti = it->first;
     }
-    buf_log->info("[buf-debug] Most busy user rnti=%u, nof_packets=%u\n", max_rnti, buffer_map.at(max_rnti).second.get_user_nof_packets());
+    buf_log->info("[buf-debug] Most busy user rnti=%u, nof_packets=%u\n", max_rnti, buffer_map.at(max_rnti).get_user_nof_packets());
   }
 	return true;
 	// if (nof_packets >= BUF_CAPACITY_PKT) {
@@ -100,11 +101,11 @@ void user_buffer_state::update_buffer_state(uint32_t lcid, uint32_t nof_unread_p
   pthread_mutex_lock(&mutex);
   user_nof_packets += nof_unread_packets;
   user_nof_bytes += nof_unread_bytes;
-  if (lch_buffer_state_map_t.count(lcid)) {
-  	user_nof_packets -= lch_buffer_state_map_t[lcid].first;
-  	user_nof_bytes -= (nof_unread_bytes - lch_buffer_state_map_t[lcid].second);
+  if (user_buffer_map.count(lcid)) {
+  	user_nof_packets -= user_buffer_map[lcid].first;
+  	user_nof_bytes -= (nof_unread_bytes - user_buffer_map[lcid].second);
   }
-  lch_buffer_state_map_t[lcid] = std::make_pair(nof_unread_packets, nof_unread_bytes);
+  user_buffer_map[lcid] = std::make_pair(nof_unread_packets, nof_unread_bytes);
   pthread_mutex_unlock(&mutex);
 }
 
