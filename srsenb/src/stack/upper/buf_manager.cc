@@ -24,7 +24,7 @@ void gtpu_buffer_manager::stop() {
 
 void gtpu_buffer_manager::rem_user(uint16_t rnti)
 {
-  buf_log->info("[buf-debug] Remove user rnti=%u\n", rnti);
+  buf_log->info("[buf-debug] Remove user rnti=0x%x\n", rnti);
 
   if (buffer_map.count(rnti)) {
   	nof_packets -= buffer_map[rnti].get_user_nof_packets();
@@ -79,7 +79,8 @@ bool gtpu_buffer_manager::check_space_new_sdu(uint16_t rnti)
   uint32_t total_packets = compute_nof_packets();
   if (total_packets >= BUF_CAPACITY_PKT) {
     int size = buffer_map.size();
-    buf_log->info("[buf-debug] fit user rnti=0x%x, size_of_map=%d, nof_packets=%u\n", rnti, size, total_packets);
+    buf_log->info("[buf-debug] Drop packet user rnti=0x%x, num_of_users=%d, nof_packets=%u\n", rnti, size, total_packets);
+    return false;
   }
   // if (buffer_map.size() > 0) {
   //   uint32_t max_rnti = buffer_map.begin()->first;
