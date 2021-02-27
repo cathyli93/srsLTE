@@ -8,7 +8,7 @@
 // #include <sys/socket.h>
 #include <unistd.h>
 
-using namespace srslte;
+// using namespace srslte;
 namespace srsenb {
 
 int gtpu_buffer_manager::init() {
