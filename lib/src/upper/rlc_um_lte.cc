@@ -102,6 +102,14 @@ uint32_t rlc_um_lte::rlc_um_lte_tx::get_buffer_state()
   return n_bytes;
 }
 
+void rlc_um_lte::rlc_um_lte_tx::get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes)
+{
+  std::lock_guard<std::mutex> lock(mutex);
+
+  nof_pkts = tx_sdu_queue.size();
+  nof_bytes = tx_sdu_queue.size_bytes();
+}
+
 bool rlc_um_lte::rlc_um_lte_tx::configure(const rlc_config_t& cnfg_, std::string rb_name_)
 {
   cfg = cnfg_;

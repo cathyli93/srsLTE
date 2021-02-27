@@ -725,7 +725,8 @@ void rrc::rem_user(uint16_t rnti)
     rlc->rem_user(rnti);
     pdcp->rem_user(rnti);
     
-    gtpu_buf->rem_user(rnti); //qr-buf
+    if (gtpu_buf != nullptr)
+      gtpu_buf->rem_user(rnti); //qr-buf
 
     users.erase(rnti);
     rrc_log->info("Removed user rnti=0x%x\n", rnti);

@@ -136,6 +136,14 @@ uint32_t rlc_um_base::get_buffer_state()
   return 0;
 }
 
+void rlc_um_base::get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes)
+{
+  if (tx) {
+    tx->get_buffer_unread_data();
+  }
+  // return 0;
+}
+
 int rlc_um_base::read_pdu(uint8_t* payload, uint32_t nof_bytes)
 {
   if (tx && tx_enabled) {
