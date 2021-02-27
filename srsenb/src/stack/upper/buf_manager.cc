@@ -40,10 +40,12 @@ void gtpu_buffer_manager::rem_user(uint16_t rnti)
 void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
 {
   if (buffer_map.count(rnti)) {
+    buf_log->info("[buf-debug] Before update: nof_unread_packets=%u, nof_unread_bytes=%u, nof_packets=%u, nof_bytes=%u\n", nof_unread_packets, nof_unread_bytes, nof_packets, nof_bytes);
   	nof_packets -= buffer_map[rnti].get_user_nof_packets();
   	nof_bytes -= buffer_map[rnti].get_user_nof_bytes();
   }
   else {
+    buf_log->info("[buf-debug] New rnti: nof_unread_packets=%u, nof_unread_bytes=%u, nof_packets=%u, nof_bytes=%u\n", nof_unread_packets, nof_unread_bytes, nof_packets, nof_bytes);
   	buffer_map[rnti] = user_buffer_state();
   	// gtpu_queue.push(std::make_pair(rnti, &buffer_map[rnti]))
   }
@@ -51,13 +53,15 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
   nof_packets += buffer_map[rnti].get_user_nof_packets();
   nof_bytes += buffer_map[rnti].get_user_nof_bytes();
 
-  buf_log->info("[buf-debug] Update nof_unread_packets=%u, nof_unread_bytes=%u, new nof_packets=%u, new nof_bytes=%u\n", nof_unread_packets, nof_unread_bytes, nof_packets, nof_bytes);
+  buf_log->info("[buf-debug] After update new nof_packets=%u, new nof_bytes=%u\n", nof_packets, nof_bytes);
 }
 
 bool gtpu_buffer_manager::check_space_new_sdu(uint16_t rnti)
 {
-  int size = buffer_map.size();
-  buf_log->info("[buf-debug] user rnti=0x%x, size_of_map=%d\n", rnti, size);
+  if (nof_packets >= BUF_CAPACITY_PKT) {
+    int size = buffer_map.size();
+    buf_log->info("[buf-debug] user rnti=0x%x, size_of_map=%d, nof_packets=%u\n", rnti, size, nof_packets);
+  }
   // if (buffer_map.size() > 0) {
   //   uint32_t max_rnti = buffer_map.begin()->first;
   //   for (user_buffer_state_map_t::iterator it = buffer_map.begin(); it != buffer_map.end(); ++it ){
