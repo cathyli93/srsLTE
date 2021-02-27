@@ -350,20 +350,22 @@ void rlc::write_pdu_mch(uint32_t lcid, uint8_t* payload, uint32_t nof_bytes)
 /*******************************************************************************
   qr-buf: Buffer interface
 *******************************************************************************/
-uint32_t rlc::get_buffer_unread_data(const uint32_t lcid, uint32_t &nof_pkts, uint32_t &nof_bytes)
+// uint32_t rlc::get_buffer_unread_data(const uint32_t lcid, uint32_t &nof_pkts, uint32_t &nof_bytes)
+void rlc::get_buffer_unread_data(const uint32_t lcid, uint32_t &nof_pkts, uint32_t &nof_bytes)
 {
   uint32_t ret = 0;
 
   rwlock_read_guard lock(rwlock);
   if (valid_lcid(lcid)) {
     if (rlc_array.at(lcid)->is_suspended()) {
-      ret = 0;
+      nof_pkts = 0;
+      nof_bytes = 0;
     } else {
-      ret = rlc_array.at(lcid)->get_buffer_unread_data(nof_pkts, nof_bytes);
+      rlc_array.at(lcid)->get_buffer_unread_data(nof_pkts, nof_bytes);
     }
   }
 
-  return ret;
+  // return ret;
 }
 
 // uint32_t rlc::pop_unread_sdu()
@@ -377,7 +379,7 @@ uint32_t rlc::get_buffer_unread_data(const uint32_t lcid, uint32_t &nof_pkts, ui
 //   }
 //   return 0;
 // }
-// qr-buf end
+/* qr-buf end */
 
 /*******************************************************************************
   RRC interface

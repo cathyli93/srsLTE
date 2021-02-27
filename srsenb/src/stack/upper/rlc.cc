@@ -165,8 +165,8 @@ int rlc::read_pdu(uint16_t rnti, uint32_t lcid, uint8_t* payload, uint32_t nof_b
 {
   int      ret;
   uint32_t tx_queue;
-  uint32_t nof_sdus;
-  uint32_t nof_sdu_bytes; //qr-buf
+  uint32_t nof_sdus = 0;
+  uint32_t nof_sdu_bytes = 0; //qr-buf
 
   pthread_rwlock_rdlock(&rwlock);
   if (users.count(rnti)) {
@@ -211,8 +211,8 @@ void rlc::write_pdu(uint16_t rnti, uint32_t lcid, uint8_t* payload, uint32_t nof
 void rlc::write_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu)
 {
   uint32_t tx_queue;
-  uint32_t nof_sdus;
-  uint32_t nof_bytes; // qr-buf
+  uint32_t nof_sdus = 0;
+  uint32_t nof_bytes = 0; // qr-buf
 
   pthread_rwlock_rdlock(&rwlock);
   if (users.count(rnti)) {
