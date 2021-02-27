@@ -318,6 +318,16 @@ public:
   virtual void write_pdu_mch(uint32_t lcid, uint8_t* payload, uint32_t nof_bytes) = 0;
 };
 
+/* qr-buf */
+// RLC interface for GTPU buffer
+class rlc_interface_buffer
+{
+public:
+  virtual void get_buffer_unread_data(const uint32_t lcid, uint32_t &nof_pkts, uint32_t &nof_bytes) = 0;
+  // virtual void pop_unread_sdu() = 0;
+}
+/* qr-buf end */
+
 /** MAC interface
  *
  */

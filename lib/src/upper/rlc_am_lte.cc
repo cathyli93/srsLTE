@@ -158,6 +158,20 @@ void rlc_am_lte::write_pdu(uint8_t* payload, uint32_t nof_bytes)
 }
 
 /****************************************************************************
+ * qr-buf Buffer interface
+ ***************************************************************************/
+uint32_t rlc_am_lte::get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes)
+{
+  return tx.get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes);
+}
+
+// bool rlc_am_lte::pop_unread_sdu()
+// {
+//   return tx.pop_unread_sdu();
+// }
+/* qr-buf end */
+
+/****************************************************************************
  * Tx subclass implementation
  ***************************************************************************/
 
@@ -335,6 +349,24 @@ uint32_t rlc_am_lte::rlc_am_lte_tx::get_buffer_state()
   pthread_mutex_unlock(&mutex);
   return n_bytes;
 }
+
+/* qr-buf */
+void rlc_am_lte::rlc_am_lte_tx::get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes)
+{
+  pthread_mutex_lock(&mutex);
+  nof_pkts = tx_sdu_queue.size();
+  nof_bytes = tx_sdu_queue.size_bytes();
+  pthread_mutex_unlock(&mutex);
+}
+
+// bool rlc_am_lte::rlc_am_lte_tx::pop_unread_sdu()
+// {
+//   pthread_mutex_lock(&mutex);
+//   bool res = tx_sdu_queue.drop_back();
+//   pthread_mutex_unlock(&mutex);
+//   return bool;
+// }
+/* qr-buf end */
 
 void rlc_am_lte::rlc_am_lte_tx::write_sdu(unique_byte_buffer_t sdu, bool blocking)
 {

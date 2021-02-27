@@ -61,7 +61,8 @@ public:
             pdcp_interface_rrc*    pdcp,
             s1ap_interface_rrc*    s1ap,
             gtpu_interface_rrc*    gtpu,
-            srslte::timer_handler* timers_);
+            srslte::timer_handler* timers_,
+            buffer_interface_rrc* gtpu_buf);
 
   void stop();
   void get_metrics(rrc_metrics_t& m);
@@ -282,6 +283,7 @@ private:
   gtpu_interface_rrc*       gtpu   = nullptr;
   s1ap_interface_rrc*       s1ap   = nullptr;
   srslte::log_ref           rrc_log;
+  buffer_interface_rrc*     gtpu_buf = nullptr;
 
   // derived params
   std::unique_ptr<cell_info_common_list> cell_common_list;

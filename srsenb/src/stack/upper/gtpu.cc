@@ -39,7 +39,8 @@ int gtpu::init(std::string                  gtp_bind_addr_,
                std::string                  m1u_if_addr_,
                srsenb::pdcp_interface_gtpu* pdcp_,
                stack_interface_gtpu_lte*    stack_,
-               bool                         enable_mbsfn_)
+               bool                         enable_mbsfn_,
+               srsenb::buffer_interface_gtpu* gtpu_buf_) //qr-buf
 {
   pdcp          = pdcp_;
   gtp_bind_addr = gtp_bind_addr_;
@@ -225,7 +226,8 @@ void gtpu::handle_gtpu_s1u_rx_packet(srslte::unique_byte_buffer_t pdu, const soc
       gtpu_log->info_hex(
           pdu->msg, pdu->N_bytes, "RX GTPU PDU rnti=0x%x, lcid=%d, n_bytes=%d", rnti, lcid, pdu->N_bytes);
 
-      pdcp->write_sdu(rnti, lcid, std::move(pdu));
+      if (gtpu_buf->check_space_new_sdu(rnti)) //qr-buf
+        pdcp->write_sdu(rnti, lcid, std::move(pdu));
     } break;
     default:
       break;

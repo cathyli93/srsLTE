@@ -37,7 +37,7 @@ namespace srslte {
  * Single interface for RLC layer - contains separate RLC entities for
  * each bearer.
  ***************************************************************************/
-class rlc : public srsue::rlc_interface_mac, public srsue::rlc_interface_pdcp, public srsue::rlc_interface_rrc
+class rlc : public srsue::rlc_interface_mac, public srsue::rlc_interface_pdcp, public srsue::rlc_interface_rrc, public srsue::rlc_interface_buffer
 {
 public:
   rlc(const char* logname);
@@ -83,6 +83,12 @@ public:
   void resume_bearer(uint32_t lcid);
   void change_lcid(uint32_t old_lcid, uint32_t new_lcid);
   bool has_bearer(uint32_t lcid);
+
+  /* qr-buf*/
+  // Buffer interface
+  void get_buffer_unread_data(const uint32_t lcid, uint32_t &nof_pkts, uint32_t &nof_bytes); 
+  // uint32_t pop_unread_sdu(); 
+  /* qr-buf end */
 
 private:
   void reset_metrics();

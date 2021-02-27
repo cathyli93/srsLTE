@@ -33,6 +33,7 @@
 #include "upper/pdcp.h"
 #include "upper/rlc.h"
 #include "upper/s1ap.h"
+#include "upper/buf_manager.h" // qr-buf
 
 #include "enb_stack_base.h"
 #include "srsenb/hdr/enb.h"
@@ -147,6 +148,7 @@ private:
   srsenb::gtpu      gtpu;
   srsenb::s1ap      s1ap;
   srslte::s1ap_pcap s1ap_pcap;
+  srsenb::gtpu_buffer_manager gtpu_buf; //qr-buf
 
   srslte::logger*           logger = nullptr;
   srslte::byte_buffer_pool* pool   = nullptr;

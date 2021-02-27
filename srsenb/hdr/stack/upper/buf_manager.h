@@ -1,0 +1,112 @@
+/*
+ * Copyright 2013-2020 Software Radio Systems Limited
+ *
+ * This file is part of srsLTE.
+ *
+ * srsLTE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * srsLTE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * A copy of the GNU Affero General Public License can be found in
+ * the LICENSE file in the top-level directory of this distribution
+ * and at http://www.gnu.org/licenses/.
+ *
+ * Author: Qianru Li
+ */
+
+#include <queue>
+#include <utility>
+// #include <string.h>
+
+// #include "common_enb.h"
+#include "srslte/common/buffer_pool.h"
+#include "srslte/common/logmap.h"
+// #include "srslte/common/threads.h"
+#include "srslte/interfaces/enb_interfaces.h"
+#include "srslte/srslte.h"
+
+#ifndef SRSENB_BUFMNG_H
+#define SRSENB_BUFMNG_H
+
+namespace srsenb {
+
+class gtpu_buffer_manager : public buffer_interface_gtpu, public buffer_interface_rlc, public rrc_interface_buffer
+{
+public:
+  gtpu_buffer_manager() : buf_log("BUFM") { }
+
+  int init(rlc_interface_bufmng* rlc_);
+  // void stop();
+
+  // interfaces for GTPU
+  // void add_bearer(uint16_t rnti, uint32_t lcid);
+  // void add_user(uint16_t rnti);
+  // void rem_bearer(uint16_t rnti, uint32_t lcid);
+  // void rem_user(uint16_t rnti);
+  bool check_space_new_sdu(uint16_t rnti);
+
+  // interface for RLC
+  void update_buffer_state(uint16_t rnti, uint32_t lcid, int nof_unread_packets, int nof_unread_bytes);
+
+  // interface for RRC
+  void rem_user(uint16_t rnti);
+
+  // bool is_buffer_full() { return nof_packets >= BUF_CAPACITY_PKT; }
+
+  // gtpu_interface_pdcp
+  // void write_pdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t pdu) override;
+
+  // stack interface
+  // void handle_gtpu_s1u_rx_packet(srslte::unique_byte_buffer_t pdu, const sockaddr_in& addr);
+  // void handle_gtpu_m1u_rx_packet(srslte::unique_byte_buffer_t pdu, const sockaddr_in& addr);
+
+private:
+  class user_buffer_state {
+  public:
+  	user_buffer_state() { pthread_mutex_init(&mutex, NULL); }
+  	~user_buffer_state() { pthread_mutex_destroy(&mutex, NULL); }
+  	void update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
+  	int get_user_nof_packets() { return user_nof_packets; }
+  	int get_user_nof_bytes() { return user_nof_bytes; }
+  	// int get_priority_value() { return -user_nof_packets; }
+  	void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes) { user_nof_packets = nof_unread_packets; user_nof_bytes = nof_unread_bytes; }
+
+  private:
+  	typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
+    typedef std::map<uint32_t, buffer_state_pair_t>  lch_buffer_state_map_t;
+    lch_buffer_state_map_t user_buffer_map;
+
+    uint32_t user_nof_packets = 0;
+  	uint32_t user_nof_bytes = 0;
+  	pthread_mutex_t mutex;
+  };
+
+  // void update_priority_value(uint16_t rnti, uint32_t lcid);
+
+  static const int BUF_CAPACITY_PKT = 128;
+
+  rlc_interface_bufmng* rlc = nullptr;
+
+  // auto cmp = [](std::pair<uint16_t, double> left, std::pair<uint16_t, double> right) { return left.second > right.second; };
+  // std::priority_queue<std::pair<uint16_t, double>, std::vector<std::pair<uint16_t, double>>, decltype(cmp)> gtpu_queue(cmp);
+  auto cmp = [](std::pair<uint16_t, user_buffer_state*> left, std::pair<uint16_t, user_buffer_state*> right) { return left.second->get_user_nof_packets() < right.second->get_user_nof_packets(); };
+  std::priority_queue<std::pair<uint16_t, user_buffer_state*>, std::vector<std::pair<uint16_t, user_buffer_state*>>, decltype(cmp)> gtpu_queue(cmp);
+  
+  typedef std::map<uint16_t, user_buffer_state>  user_buffer_state_map_t;
+  user_buffer_state_map_t buffer_map
+
+  int nof_packets = 0;
+  int nof_bytes = 0;
+
+  srslte::log_ref  buf_log;
+};
+
+} // namespace srsenb
+
+#endif // SRSENB_BUFMNG_H

@@ -51,7 +51,8 @@ void rrc::init(const rrc_cfg_t&       cfg_,
                pdcp_interface_rrc*    pdcp_,
                s1ap_interface_rrc*    s1ap_,
                gtpu_interface_rrc*    gtpu_,
-               srslte::timer_handler* timers_)
+               srslte::timer_handler* timers_,
+               buffer_interface_rrc* gtpu_buf_) //qr-buf
 {
   phy    = phy_;
   mac    = mac_;
@@ -60,6 +61,7 @@ void rrc::init(const rrc_cfg_t&       cfg_,
   gtpu   = gtpu_;
   s1ap   = s1ap_;
   timers = timers_;
+  gtpu_buf = gtpu_buf_; //qr-buf
 
   pool = srslte::byte_buffer_pool::get_instance();
 
@@ -722,6 +724,8 @@ void rrc::rem_user(uint16_t rnti)
     // Now remove RLC and PDCP
     rlc->rem_user(rnti);
     pdcp->rem_user(rnti);
+    
+    gtpu_buf->rem_user(rnti); //qr-buf
 
     users.erase(rnti);
     rrc_log->info("Removed user rnti=0x%x\n", rnti);

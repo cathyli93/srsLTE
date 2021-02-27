@@ -353,6 +353,15 @@ public:
   virtual bool resume_bearer(uint16_t rnti, uint32_t lcid)                               = 0;
 };
 
+// RLC interface for GTPU buffer
+// class rlc_interface_buffer
+// {
+// public:
+//   /* gtpu_buffer_manager calls RLC to pop packet for a specific user/lch. */
+//   virtual void pop_unread_sdu(uint16_t rnti, uint32_t lcid) = 0;
+//   virtual void pop_unread_sdu_user(uint16_t rnti) = 0;
+// };
+
 // PDCP interface for GTPU
 class pdcp_interface_gtpu
 {
@@ -453,6 +462,29 @@ public:
   virtual void rem_bearer(uint16_t rnti, uint32_t lcid)                                                      = 0;
   virtual void rem_user(uint16_t rnti)                                                                       = 0;
 };
+
+/* qr-buf */
+// Buffer interface for GTPU
+class buffer_interface_gtpu
+{
+public:
+  virtual bool check_space_new_sdu(uint16_t rnti)       = 0;
+};
+
+// Buffer interface for RLC
+class buffer_interface_rlc
+{
+public:
+  virtual void update_buffer_state(uint16_t rnti, uint32_t lcid, int nof_unread_packets, int nof_unread_bytes) = 0;
+};
+
+// Buffer interface for RRC
+class buffer_interface_rrc
+{
+public:
+  virtual void rem_user(uint16_t rnti)  = 0;
+}
+/* qr-buf end */
 
 // S1AP interface for RRC
 class s1ap_interface_rrc

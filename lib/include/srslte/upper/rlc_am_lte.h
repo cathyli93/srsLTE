@@ -88,6 +88,12 @@ public:
   int      read_pdu(uint8_t* payload, uint32_t nof_bytes);
   void     write_pdu(uint8_t* payload, uint32_t nof_bytes);
 
+  /* qr-buf */
+  // Buffer interface; 
+  void get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes);
+  // bool pop_unread_sdu();
+  /* qr-buf end */
+
   rlc_bearer_metrics_t get_metrics();
   void                 reset_metrics();
 
@@ -119,6 +125,11 @@ private:
 
     // Interface for Rx subclass
     void handle_control_pdu(uint8_t* payload, uint32_t nof_bytes);
+
+    /* qr-buf */
+    void get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes);
+    // bool pop_unread_sdu();
+    /* qr-buf end */
 
   private:
     int build_status_pdu(uint8_t* payload, uint32_t nof_bytes);

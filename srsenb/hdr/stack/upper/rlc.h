@@ -84,6 +84,7 @@ private:
     srsenb::rrc_interface_rlc*   rrc;
     std::unique_ptr<srslte::rlc> rlc;
     srsenb::rlc*                 parent;
+    srsenb::buffer_interface_rlc* gtpu_buf;
   };
 
   pthread_rwlock_t rwlock;

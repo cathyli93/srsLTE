@@ -348,6 +348,38 @@ void rlc::write_pdu_mch(uint32_t lcid, uint8_t* payload, uint32_t nof_bytes)
 }
 
 /*******************************************************************************
+  qr-buf: Buffer interface
+*******************************************************************************/
+uint32_t rlc::get_buffer_unread_data(const uint32_t lcid, uint32_t &nof_pkts, uint32_t &nof_bytes)
+{
+  uint32_t ret = 0;
+
+  rwlock_read_guard lock(rwlock);
+  if (valid_lcid(lcid)) {
+    if (rlc_array.at(lcid)->is_suspended()) {
+      ret = 0;
+    } else {
+      ret = rlc_array.at(lcid)->get_buffer_unread_data(nof_pkts, nof_bytes);
+    }
+  }
+
+  return ret;
+}
+
+// uint32_t rlc::pop_unread_sdu()
+// {
+//   rwlock_read_guard lock(rwlock);
+//   for (uint32_t i=3; i < SRSLTE_N_RADIO_BEARERS; i++) {
+//     if (rlc_array.count(i)) {
+//       if (rlc_array.at(i)->pop_unread_sdu())
+//         return i;
+//     }
+//   }
+//   return 0;
+// }
+// qr-buf end
+
+/*******************************************************************************
   RRC interface
 *******************************************************************************/
 

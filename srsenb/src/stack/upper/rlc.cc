@@ -28,13 +28,15 @@ void rlc::init(pdcp_interface_rlc*    pdcp_,
                rrc_interface_rlc*     rrc_,
                mac_interface_rlc*     mac_,
                srslte::timer_handler* timers_,
-               srslte::log_ref        log_h_)
+               srslte::log_ref        log_h_,
+               buffer_interface_rlc* gtpu_buf_) //qr-buf
 {
   pdcp   = pdcp_;
   rrc    = rrc_;
   log_h  = log_h_;
   mac    = mac_;
   timers = timers_;
+  gtpu_buf = gtpu_buf_; //qr-buf
 
   pool = srslte::byte_buffer_pool::get_instance();
 
@@ -150,16 +152,28 @@ void rlc::read_pdu_pcch(uint8_t* payload, uint32_t buffer_size)
   rrc->read_pdu_pcch(payload, buffer_size);
 }
 
+/* qr-buf */
+// uint32_t rlc::pop_unread_sdu(uint16_t rnti)
+// {
+//   if (users.count(rnti))
+//     return users[rnti].rlc->pop_unread_sdu();
+//   return 0;
+// }
+/* qr-buf end */
+
 int rlc::read_pdu(uint16_t rnti, uint32_t lcid, uint8_t* payload, uint32_t nof_bytes)
 {
   int      ret;
   uint32_t tx_queue;
+  uint32_t nof_sdus, nof_bytes; //qr-buf
 
   pthread_rwlock_rdlock(&rwlock);
   if (users.count(rnti)) {
     if (rnti != SRSLTE_MRNTI) {
       ret      = users[rnti].rlc->read_pdu(lcid, payload, nof_bytes);
       tx_queue = users[rnti].rlc->get_buffer_state(lcid);
+      users[rnti].rlc->get_buffer_unread_data(lcid, nof_sdus, nof_bytes); // qr-buf
+      gtpu_buf->update_buffer_state(rnti, lcid, nof_sdus, nof_bytes); // qr-buf
     } else {
       ret      = users[rnti].rlc->read_pdu_mch(lcid, payload, nof_bytes);
       tx_queue = users[rnti].rlc->get_total_mch_buffer_state(lcid);
@@ -196,12 +210,15 @@ void rlc::write_pdu(uint16_t rnti, uint32_t lcid, uint8_t* payload, uint32_t nof
 void rlc::write_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu)
 {
   uint32_t tx_queue;
+  uint32_t nof_sdus, nof_bytes; // qr-buf
 
   pthread_rwlock_rdlock(&rwlock);
   if (users.count(rnti)) {
     if (rnti != SRSLTE_MRNTI) {
       users[rnti].rlc->write_sdu(lcid, std::move(sdu), false);
       tx_queue = users[rnti].rlc->get_buffer_state(lcid);
+      users[rnti].rlc->get_buffer_unread_data(lcid, nof_sdus, nof_bytes); // qr-buf
+      gtpu_buf->update_buffer_state(rnti, lcid, nof_sdus, nof_bytes); // qr-buf
     } else {
       users[rnti].rlc->write_sdu_mch(lcid, std::move(sdu));
       tx_queue = users[rnti].rlc->get_total_mch_buffer_state(lcid);

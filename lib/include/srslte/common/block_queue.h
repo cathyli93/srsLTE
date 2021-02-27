@@ -31,7 +31,7 @@
 
 #include <memory>
 #include <pthread.h>
-#include <queue>
+#include <deque> //qr-buf
 #include <stdint.h>
 #include <stdio.h>
 #include <strings.h>
@@ -214,7 +214,7 @@ private:
     return ret;
   }
 
-  std::queue<myobj> q;
+  std::deque<myobj> q; //qr-buf
   pthread_mutex_t   mutex;
   pthread_cond_t    cv_empty;
   pthread_cond_t    cv_full;

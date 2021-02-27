@@ -45,7 +45,8 @@ public:
             std::string               m1u_if_addr_,
             pdcp_interface_gtpu*      pdcp_,
             stack_interface_gtpu_lte* stack_,
-            bool                      enable_mbsfn = false);
+            bool                      enable_mbsfn = false,
+            buffer_interface_gtpu*    gtpu_buf_);
   void stop();
 
   // gtpu_interface_rrc
@@ -71,6 +72,7 @@ private:
   std::string                  mme_addr;
   srsenb::pdcp_interface_gtpu* pdcp = nullptr;
   srslte::log_ref              gtpu_log;
+  srsenb::buffer_interface_gtpu* gtpu_buf = nullptr;
 
   // Class to create
   class m1u_handler

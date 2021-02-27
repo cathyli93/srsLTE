@@ -285,6 +285,12 @@ public:
   virtual int      read_pdu(uint8_t* payload, uint32_t nof_bytes)  = 0;
   virtual void     write_pdu(uint8_t* payload, uint32_t nof_bytes) = 0;
 
+  /* qr-buf */
+  // Buffer interface
+  virtual void get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes) = 0;
+  // virtual uint32_t pop_unread_sdu() = 0;
+  /* qr-buf end */
+
 private:
   bool suspended = false;
 
