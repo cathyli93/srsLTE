@@ -143,7 +143,7 @@ void user_buffer_state::set_buffer_state(uint32_t nof_unread_packets, uint32_t n
   pthread_mutex_unlock(&mutex);
 }
 
-void user_buffer_state::compute_nof_packets()
+uint32_t user_buffer_state::compute_nof_packets()
 {
   pthread_mutex_lock(&mutex);
   uint32_t total = 0;
