@@ -43,7 +43,7 @@ namespace srsenb {
     uint32_t get_user_nof_packets() { return user_nof_packets; }
     uint32_t get_user_nof_bytes() { return user_nof_bytes; }
     // int get_priority_value() { return -user_nof_packets; }
-    void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes) { user_nof_packets = nof_unread_packets; user_nof_bytes = nof_unread_bytes; }
+    void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
 
   private:
     typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
