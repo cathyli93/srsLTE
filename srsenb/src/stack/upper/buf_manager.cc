@@ -57,15 +57,15 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
 bool gtpu_buffer_manager::check_space_new_sdu(uint16_t rnti)
 {
   int size = buffer_map.size();
-  buf_log->info("[buf-debug] user rnti=%u, size_of_map=%u\n", rnti, size);
-  if (buffer_map.size() > 0) {
-    uint32_t max_rnti = buffer_map.begin()->first;
-    for (user_buffer_state_map_t::iterator it = buffer_map.begin(); it != buffer_map.end(); ++it ){
-      buf_log->info("[buf-debug] Iterate user rnti=%u, nof_packets=%u\n", it->first, it->second.get_user_nof_packets());
-      if (it->second.get_user_nof_packets() > buffer_map.at(max_rnti).get_user_nof_packets())
-        max_rnti = it->first;
-    } 
-  }
+  buf_log->info("[buf-debug] user rnti=0x%x, size_of_map=%d\n", rnti, size);
+  // if (buffer_map.size() > 0) {
+  //   uint32_t max_rnti = buffer_map.begin()->first;
+  //   for (user_buffer_state_map_t::iterator it = buffer_map.begin(); it != buffer_map.end(); ++it ){
+  //     buf_log->info("[buf-debug] Iterate user rnti=%u, nof_packets=%u\n", it->first, it->second.get_user_nof_packets());
+  //     if (it->second.get_user_nof_packets() > buffer_map.at(max_rnti).get_user_nof_packets())
+  //       max_rnti = it->first;
+  //   } 
+  // }
 	return true;
 	// if (nof_packets >= BUF_CAPACITY_PKT) {
 	//   if (gtpu_queue.top().first != rnti) {
