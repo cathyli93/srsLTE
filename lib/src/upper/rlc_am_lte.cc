@@ -162,7 +162,7 @@ void rlc_am_lte::write_pdu(uint8_t* payload, uint32_t nof_bytes)
  ***************************************************************************/
 void rlc_am_lte::get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes)
 {
-  tx.get_buffer_unread_data(uint32_t &nof_pkts, uint32_t &nof_bytes);
+  tx.get_buffer_unread_data(nof_pkts, nof_bytes);
 }
 
 // bool rlc_am_lte::pop_unread_sdu()
