@@ -35,8 +35,31 @@
 #define SRSENB_BUFMNG_H
 
 namespace srsenb {
+  class user_buffer_state {
+  public:
+    user_buffer_state() { pthread_mutex_init(&mutex, NULL); }
+    ~user_buffer_state() { pthread_mutex_destroy(&mutex); }
+    void update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
+    int get_user_nof_packets() { return user_nof_packets; }
+    int get_user_nof_bytes() { return user_nof_bytes; }
+    // int get_priority_value() { return -user_nof_packets; }
+    void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes) { user_nof_packets = nof_unread_packets; user_nof_bytes = nof_unread_bytes; }
 
-class gtpu_buffer_manager : public buffer_interface_gtpu, public buffer_interface_rlc, public rrc_interface_buffer
+  private:
+    typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
+    typedef std::map<uint32_t, buffer_state_pair_t>  lch_buffer_state_map_t;
+    lch_buffer_state_map_t user_buffer_map;
+
+    uint32_t user_nof_packets = 0;
+    uint32_t user_nof_bytes = 0;
+    pthread_mutex_t mutex;
+  };
+
+bool cmp(std::pair<uint16_t, user_buffer_state*> left, std::pair<uint16_t, user_buffer_state*> right) {
+  return left.second->get_user_nof_packets() < right.second->get_user_nof_packets();
+}
+
+class gtpu_buffer_manager : public buffer_interface_gtpu, public buffer_interface_rlc, public buffer_interface_rrc
 {
 public:
   gtpu_buffer_manager() : buf_log("BUFM") { }
@@ -68,39 +91,20 @@ public:
   // void handle_gtpu_m1u_rx_packet(srslte::unique_byte_buffer_t pdu, const sockaddr_in& addr);
 
 private:
-  class user_buffer_state {
-  public:
-  	user_buffer_state() { pthread_mutex_init(&mutex, NULL); }
-  	~user_buffer_state() { pthread_mutex_destroy(&mutex); }
-  	void update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
-  	int get_user_nof_packets() { return user_nof_packets; }
-  	int get_user_nof_bytes() { return user_nof_bytes; }
-  	// int get_priority_value() { return -user_nof_packets; }
-  	void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes) { user_nof_packets = nof_unread_packets; user_nof_bytes = nof_unread_bytes; }
-
-  private:
-  	typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
-    typedef std::map<uint32_t, buffer_state_pair_t>  lch_buffer_state_map_t;
-    lch_buffer_state_map_t user_buffer_map;
-
-    uint32_t user_nof_packets = 0;
-  	uint32_t user_nof_bytes = 0;
-  	pthread_mutex_t mutex;
-  };
 
   // void update_priority_value(uint16_t rnti, uint32_t lcid);
 
   static const int BUF_CAPACITY_PKT = 128;
 
-  rlc_interface_bufmng* rlc = nullptr;
+  // rlc_interface_bufmng* rlc = nullptr;
 
   // auto cmp = [](std::pair<uint16_t, double> left, std::pair<uint16_t, double> right) { return left.second > right.second; };
   // std::priority_queue<std::pair<uint16_t, double>, std::vector<std::pair<uint16_t, double>>, decltype(cmp)> gtpu_queue(cmp);
-  auto cmp = [](std::pair<uint16_t, user_buffer_state*> left, std::pair<uint16_t, user_buffer_state*> right) { return left.second->get_user_nof_packets() < right.second->get_user_nof_packets(); };
-  std::priority_queue<std::pair<uint16_t, user_buffer_state*>, std::vector<std::pair<uint16_t, user_buffer_state*>>, decltype(cmp)> gtpu_queue(cmp);
+  
+  std::priority_queue<std::pair<uint16_t, user_buffer_state*>, std::vector<std::pair<uint16_t, user_buffer_state*>>, std::function<bool(std::pair<uint16_t, user_buffer_state*>, std::pair<uint16_t, user_buffer_state*>)>> gtpu_queue(cmp);
   
   typedef std::map<uint16_t, user_buffer_state>  user_buffer_state_map_t;
-  user_buffer_state_map_t buffer_map
+  user_buffer_state_map_t buffer_map;
 
   int nof_packets = 0;
   int nof_bytes = 0;
