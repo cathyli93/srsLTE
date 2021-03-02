@@ -31,7 +31,7 @@
 
 #include <memory>
 #include <pthread.h>
-#include <deque> //qr-buf
+#include <queue>
 #include <stdint.h>
 #include <stdio.h>
 #include <strings.h>
@@ -147,8 +147,7 @@ private:
     if (mutexed_callback) {
       mutexed_callback->popping(*value); // TODO: Value might be null!
     }
-    // q.pop();
-    q.pop_front();
+    q.pop();
     ret = true;
     pthread_cond_signal(&cv_full);
   exit:
@@ -190,8 +189,7 @@ private:
       if (mutexed_callback) {
         mutexed_callback->pushing(value);
       }
-      // q.push(std::move(value));
-      q.push_back(std::move(value));
+      q.push(std::move(value));
       pthread_cond_signal(&cv_empty);
     }
     pthread_mutex_unlock(&mutex);
@@ -209,15 +207,14 @@ private:
       if (mutexed_callback) {
         mutexed_callback->pushing(value);
       }
-      // q.push(value);
-      q.push_back(value);
+      q.push(value);
       pthread_cond_signal(&cv_empty);
     }
     pthread_mutex_unlock(&mutex);
     return ret;
   }
 
-  std::deque<myobj> q; //qr-buf
+  std::queue<myobj> q; 
   pthread_mutex_t   mutex;
   pthread_cond_t    cv_empty;
   pthread_cond_t    cv_full;
