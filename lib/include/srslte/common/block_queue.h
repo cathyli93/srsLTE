@@ -214,7 +214,7 @@ private:
     return ret;
   }
 
-  std::queue<myobj> q; 
+  std::queue<myobj> q;
   pthread_mutex_t   mutex;
   pthread_cond_t    cv_empty;
   pthread_cond_t    cv_full;
