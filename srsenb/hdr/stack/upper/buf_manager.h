@@ -48,8 +48,8 @@ namespace srsenb {
     uint32_t get_user_nof_bytes() { return user_nof_bytes; }
     uint32_t get_bearer_nof_packets(uint32_t lcid);
     // int get_priority_value() { return -user_nof_packets; }
-    void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
-    uint32_t compute_nof_packets();
+    // void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
+    // uint32_t compute_nof_packets();
 
   private:
     typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
@@ -79,14 +79,14 @@ public:
   // void add_user(uint16_t rnti);
   // void rem_bearer(uint16_t rnti, uint32_t lcid);
   // void rem_user(uint16_t rnti);
-  bool check_space_new_sdu(uint16_t rnti);
+  // bool check_space_new_sdu(uint16_t rnti);
+  void push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu);
 
   // interface for RLC
   void update_buffer_state(uint16_t rnti, uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
 
   // interface for RRC
   void rem_user(uint16_t rnti);
-  void push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu);
 
   // bool is_buffer_full() { return nof_packets >= BUF_CAPACITY_PKT; }
 
@@ -100,8 +100,10 @@ public:
 private:
 
   // void update_priority_value(uint16_t rnti, uint32_t lcid);
-  uint32_t compute_nof_packets();
+  // uint32_t compute_nof_packets();
   void erase_oldest_and_move(uint16_t rnti);
+  void push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu)
+  uint16_t get_user_to_drop(uint32_t &lcid);
 
   static const int COMMON_CAPACITY_PKT = 128;
   static const int BEARER_CAPACITY_PKT = 16;
@@ -123,8 +125,17 @@ private:
   typedef std::pair<pkt_identity, srslte::unique_byte_buffer_t> pending_pkt;
   // typedef list<pending_pkt> pkt_identity;
   std::list<pending_pkt> common_queue;
-  std::map<uint16_t, std::list<pending_pkt>::iterator> first_pkt_iter;
-  std::map<uint16_t, uint32_t> buffer_usage;
+
+  typedef std::map<uint32_t, std::list<pending_pkt>::iterator> lcid_first_pkt;
+  typedef std::map<uint16_t, lcid_first_pkt> first_pkt;
+  first_pkt user_first_pkt;
+
+  typedef std::map<uint32_t, uint32_t> lcid_nof_pkts;
+  typedef std::map<uint16_t, lcid_nof_pkts> user_nof_pkts;
+  user_nof_pkts buffer_usage;
+
+  // std::map<uint16_t, std::list<pending_pkt>::iterator> first_pkt_iter;
+  // std::map<uint16_t, uint32_t> buffer_usage;
 
   int nof_packets = 0;
   int nof_bytes = 0;
