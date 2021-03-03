@@ -115,6 +115,7 @@ uint16_t gtpu_buffer_manager::get_user_to_drop(uint32_t &lcid)
       }
     }
   }
+  return max_rnti;
 }
 
 void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu)
@@ -149,7 +150,7 @@ void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
   buffer_usage[rnti][lcid] -= 1;
   std::list<pending_pkt>::iterator tmp = common_queue.erase(user_first_pkt[rnti][lcid]);
   for (; tmp != common_queue.end(); tmp++) {
-    if (tmp->first->first == rnti && tmp->first->second == lcid)
+    if (tmp->first.first == rnti && tmp->first.second == lcid)
       break;
   }
   if (tmp == common_queue.end()) {

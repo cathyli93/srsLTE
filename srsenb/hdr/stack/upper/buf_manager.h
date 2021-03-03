@@ -101,7 +101,7 @@ private:
 
   // void update_priority_value(uint16_t rnti, uint32_t lcid);
   // uint32_t compute_nof_packets();
-  void erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
+  void erase_oldest_and_move(uint16_t rnti, uint32_t lcid);
   void push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu);
   uint16_t get_user_to_drop(uint32_t &lcid);
 
