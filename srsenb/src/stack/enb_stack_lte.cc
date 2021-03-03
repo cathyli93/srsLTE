@@ -112,7 +112,7 @@ int enb_stack_lte::init(const stack_args_t& args_, const rrc_cfg_t& rrc_cfg_)
   }
 
   // gtpu_buf.init(&rlc); // qr-buf
-  gtpu_buf.init(); // qr-buf
+  gtpu_buf.init(&pdcp); // qr-buf
 
   if (gtpu.init(args.s1ap.gtp_bind_addr,
                 args.s1ap.mme_addr,

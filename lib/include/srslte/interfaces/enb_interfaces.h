@@ -468,7 +468,8 @@ public:
 class buffer_interface_gtpu
 {
 public:
-  virtual bool check_space_new_sdu(uint16_t rnti)       = 0;
+  virtual bool check_space_new_sdu(uint16_t rnti)                                       = 0;
+  virtual void push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu) = 0;
 };
 
 // Buffer interface for RLC

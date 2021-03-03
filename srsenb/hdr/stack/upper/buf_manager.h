@@ -21,12 +21,15 @@
  */
 
 #include <queue>
+#include <list>
 #include <utility>
 // #include <string.h>
 
 // #include "common_enb.h"
 #include "srslte/common/buffer_pool.h"
 #include "srslte/common/logmap.h"
+#include "srslte/common/common.h"
+#include "srslte/common/block_queue.h"
 // #include "srslte/common/threads.h"
 #include "srslte/interfaces/enb_interfaces.h"
 #include "srslte/srslte.h"
@@ -40,15 +43,17 @@ namespace srsenb {
     user_buffer_state() { pthread_mutex_init(&mutex, NULL); }
     ~user_buffer_state() { pthread_mutex_destroy(&mutex); }
     void update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
+    void update_buffer_state_delta(uint32_t lcid, uint32_t delta_nof_packets, uint32_t delta_nof_bytes);
     uint32_t get_user_nof_packets() { return user_nof_packets; }
     uint32_t get_user_nof_bytes() { return user_nof_bytes; }
+    uint32_t get_bearer_nof_packets(uint32_t lcid);
     // int get_priority_value() { return -user_nof_packets; }
     void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
     uint32_t compute_nof_packets();
 
   private:
     typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
-    typedef std::map<uint32_t, buffer_state_pair_t>  lch_buffer_state_map_t;
+    typedef std::map<uint32_t, buffer_state_pair_t> lch_buffer_state_map_t;
     lch_buffer_state_map_t user_buffer_map;
 
     uint32_t user_nof_packets = 0;
@@ -66,7 +71,7 @@ public:
   gtpu_buffer_manager() : buf_log("BUFM") { }
 
   // int init(rlc_interface_bufmng* rlc_);
-  void init();
+  void init(pdcp_interface_gtpu* pdcp_);
   void stop();
 
   // interfaces for GTPU
@@ -81,6 +86,7 @@ public:
 
   // interface for RRC
   void rem_user(uint16_t rnti);
+  void push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu);
 
   // bool is_buffer_full() { return nof_packets >= BUF_CAPACITY_PKT; }
 
@@ -95,10 +101,13 @@ private:
 
   // void update_priority_value(uint16_t rnti, uint32_t lcid);
   uint32_t compute_nof_packets();
+  void erase_oldest_and_move(uint16_t rnti);
 
-  static const int BUF_CAPACITY_PKT = 128;
+  static const int COMMON_CAPACITY_PKT = 128;
+  static const int BEARER_CAPACITY_PKT = 16;
 
   // rlc_interface_bufmng* rlc = nullptr;
+  pdcp_interface_gtpu* pdcp = nullptr;
 
   // auto cmp = [](std::pair<uint16_t, double> left, std::pair<uint16_t, double> right) { return left.second > right.second; };
   // std::priority_queue<std::pair<uint16_t, double>, std::vector<std::pair<uint16_t, double>>, decltype(cmp)> gtpu_queue(cmp);
@@ -108,10 +117,21 @@ private:
   typedef std::map<uint16_t, user_buffer_state>  user_buffer_state_map_t;
   user_buffer_state_map_t buffer_map;
 
+  // std::queue<srslte::unique_byte_buffer_t> common_queue;
+  // srslte::block_queue<unique_byte_buffer_t>(COMMON_CAPACITY_PKT) queue;
+  typedef std::pair<uint16_t, uint32_t> pkt_identity;
+  typedef std::pair<pkt_identity, unique_byte_buffer_t> pending_pkt;
+  // typedef list<pending_pkt> pkt_identity;
+  list<pending_pkt> common_queue;
+  map<uint16_t, list<pending_pkt>::iterator> first_pkt_iter;
+  map<uint16_t, uint32_t> buffer_usage;
+
   int nof_packets = 0;
   int nof_bytes = 0;
 
   srslte::log_ref  buf_log;
+
+  pthread_rwlock_t rwlock;
 };
 
 } // namespace srsenb

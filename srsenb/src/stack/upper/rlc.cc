@@ -219,8 +219,8 @@ void rlc::write_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t s
     if (rnti != SRSLTE_MRNTI) {
       users[rnti].rlc->write_sdu(lcid, std::move(sdu), false);
       tx_queue = users[rnti].rlc->get_buffer_state(lcid);
-      users[rnti].rlc->get_buffer_unread_data(lcid, nof_sdus, nof_bytes); // qr-buf
-      gtpu_buf->update_buffer_state(rnti, lcid, nof_sdus, nof_bytes); // qr-buf
+      // users[rnti].rlc->get_buffer_unread_data(lcid, nof_sdus, nof_bytes); // qr-buf
+      // gtpu_buf->update_buffer_state(rnti, lcid, nof_sdus, nof_bytes); // qr-buf
     } else {
       users[rnti].rlc->write_sdu_mch(lcid, std::move(sdu));
       tx_queue = users[rnti].rlc->get_total_mch_buffer_state(lcid);
