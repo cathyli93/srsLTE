@@ -44,8 +44,8 @@ namespace srsenb {
     ~user_buffer_state() { pthread_mutex_destroy(&mutex); }
     void update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
     void update_buffer_state_delta(uint32_t lcid, uint32_t delta_nof_packets, uint32_t delta_nof_bytes);
-    uint32_t get_user_nof_packets() { return user_nof_packets; }
-    uint32_t get_user_nof_bytes() { return user_nof_bytes; }
+    // uint32_t get_user_nof_packets() { return user_nof_packets; }
+    // uint32_t get_user_nof_bytes() { return user_nof_bytes; }
     uint32_t get_bearer_nof_packets(uint32_t lcid);
     // int get_priority_value() { return -user_nof_packets; }
     // void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
@@ -56,8 +56,8 @@ namespace srsenb {
     typedef std::map<uint32_t, buffer_state_pair_t> lch_buffer_state_map_t;
     lch_buffer_state_map_t user_buffer_map;
 
-    uint32_t user_nof_packets = 0;
-    uint32_t user_nof_bytes = 0;
+    // uint32_t user_nof_packets = 0;
+    // uint32_t user_nof_bytes = 0;
     pthread_mutex_t mutex;
   };
 
@@ -137,8 +137,8 @@ private:
   // std::map<uint16_t, std::list<pending_pkt>::iterator> first_pkt_iter;
   // std::map<uint16_t, uint32_t> buffer_usage;
 
-  int nof_packets = 0;
-  int nof_bytes = 0;
+  // int nof_packets = 0;
+  // int nof_bytes = 0;
 
   srslte::log_ref  buf_log;
 
