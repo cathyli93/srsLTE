@@ -227,10 +227,11 @@ void gtpu::handle_gtpu_s1u_rx_packet(srslte::unique_byte_buffer_t pdu, const soc
       gtpu_log->info_hex(
           pdu->msg, pdu->N_bytes, "RX GTPU PDU rnti=0x%x, lcid=%d, n_bytes=%d", rnti, lcid, pdu->N_bytes);
 
-      if (gtpu_buf->check_space_new_sdu(rnti)) {//qr-buf 
-        gtpu_log->info("[buf-debug] before write SDU, rnti=0x%x\n", rnti);
-        pdcp->write_sdu(rnti, lcid, std::move(pdu));
-      }
+      // if (gtpu_buf->check_space_new_sdu(rnti)) {//qr-buf 
+      //   gtpu_log->info("[buf-debug] before write SDU, rnti=0x%x\n", rnti);
+      //   pdcp->write_sdu(rnti, lcid, std::move(pdu));
+      // }
+      gtpu_buf->push_sdu(rnti, lcid, std::move(pdu));
     } break;
     default:
       break;

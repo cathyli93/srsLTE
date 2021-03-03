@@ -88,8 +88,9 @@ void gtpu_buffer_manager::push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_
   } else {
     uint32_t max_lcid;
     uint16_t max_user = get_user_to_drop(max_lcid);
-    if (max_user != rnti){
-      erase_oldest_and_move(max_user, max_lcid);
+    if (max_user != rnti || max_lcid != lcid) {
+      if (max_user > 0 && max_lcid > 0)
+        erase_oldest_and_move(max_user, max_lcid);
       push_sdu_(rnti, lcid, std::move(sdu));
     }
   }
@@ -108,7 +109,7 @@ uint16_t gtpu_buffer_manager::get_user_to_drop(uint32_t &lcid)
       continue;
     lcid = it->second.begin()->first;
     for (auto it2 = it->second.begin(); it2 != it->second.end(); it2++){
-      if (it2->second > buffer_usage[max_rnti][max_lcid]) {
+      if (it2->second > buffer_usage[max_rnti][lcid]) {
         max_rnti = it->first;
         lcid = it2->first;
       }
@@ -126,8 +127,8 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
   }
   buffer_usage[rnti][lcid] += 1;
 
-  pair<uint16_t, uint32_t> identity = {rnti, lcid};
-  common_queue.push(std::make_pair(identity, std::move(sdu)));
+  std::pair<uint16_t, uint32_t> identity = {rnti, lcid};
+  common_queue.push_back(std::make_pair(identity, std::move(sdu)));
   if (!user_first_pkt.count(rnti)) {
     user_first_pkt[rnti] = lcid_first_pkt();
   }
