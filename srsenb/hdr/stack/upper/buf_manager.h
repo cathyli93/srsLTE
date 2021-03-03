@@ -120,11 +120,11 @@ private:
   // std::queue<srslte::unique_byte_buffer_t> common_queue;
   // srslte::block_queue<unique_byte_buffer_t>(COMMON_CAPACITY_PKT) queue;
   typedef std::pair<uint16_t, uint32_t> pkt_identity;
-  typedef std::pair<pkt_identity, unique_byte_buffer_t> pending_pkt;
+  typedef std::pair<pkt_identity, srslte::unique_byte_buffer_t> pending_pkt;
   // typedef list<pending_pkt> pkt_identity;
-  list<pending_pkt> common_queue;
-  map<uint16_t, list<pending_pkt>::iterator> first_pkt_iter;
-  map<uint16_t, uint32_t> buffer_usage;
+  std::list<pending_pkt> common_queue;
+  std::map<uint16_t, std::list<pending_pkt>::iterator> first_pkt_iter;
+  std::map<uint16_t, uint32_t> buffer_usage;
 
   int nof_packets = 0;
   int nof_bytes = 0;
