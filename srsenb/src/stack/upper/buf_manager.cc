@@ -99,14 +99,16 @@ void gtpu_buffer_manager::push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_
   else if (common_queue.size() < COMMON_CAPACITY_PKT) {
     push_sdu_(rnti, lcid, std::move(sdu));
   } else {
-    // uint32_t max_lcid;
-    // uint16_t max_user = get_user_to_drop(max_lcid);
-    // if (max_user != rnti || max_lcid != lcid) {
-    //   if (max_user > 0 && max_lcid > 0)
-    //     erase_oldest_and_move(max_user, max_lcid);
-    //   push_sdu_(rnti, lcid, std::move(sdu));
-    // }
-    buf_log->info("[buf-debug] Directly drop packet rnti=0x%x, lcid=%u, size=%u\n", rnti, lcid, sdu->N_bytes);
+    uint32_t max_lcid;
+    uint16_t max_user = get_user_to_drop(max_lcid);
+    if (max_user > 0 && max_lcid > 0)
+      buf_log->info("[buf-debug] Drop oldest packet rnti=0x%x, lcid=%u, size=%u\n", max_user, max_lcid, buffer_usage[max_user][max_lcid]);
+    if (max_user != rnti || max_lcid != lcid) {
+      if (max_user > 0 && max_lcid > 0)
+        erase_oldest_and_move(max_user, max_lcid);
+      push_sdu_(rnti, lcid, std::move(sdu));
+    }
+    // buf_log->info("[buf-debug] Directly drop packet rnti=0x%x, lcid=%u, size=%u\n", rnti, lcid, sdu->N_bytes);
   }
   // pthread_rwlock_unlock(&rwlock);
   pthread_mutex_unlock(&mutex);
@@ -182,7 +184,7 @@ void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
       break;
   }
   buf_log->info("[buf-debug] Reach the next pkt in common queue: rnti=0x%x, lcid=%u\n", rnti, lcid);
-  
+
   user_first_pkt[rnti][lcid] = tmp;
   if (tmp == common_queue.end()) {
     user_first_pkt[rnti].erase(lcid);
