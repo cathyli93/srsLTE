@@ -63,8 +63,9 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
 
   uint32_t space = BEARER_CAPACITY_PKT - nof_unread_packets;
   while (space > 0 && user_first_pkt.count(rnti) && user_first_pkt[rnti].count(lcid)) {
-    buffer_map[rnti].update_buffer_state_delta(lcid, 1, user_first_pkt.at(rnti).at(lcid)->second->N_bytes);
-    pdcp->write_sdu(rnti, lcid, std::move(user_first_pkt.at(rnti).at(lcid)->second));
+    buffer_map[rnti].update_buffer_state_delta(lcid, 1, user_first_pkt[rnti][lcid]->second->N_bytes);
+    pdcp->write_sdu(rnti, lcid, std::move(user_first_pkt[rnti][lcid]->second));
+    buf_log->info("[buf-debug] From common to RLC rnti=0x%x, lcid=%u\n", rnti, lcid);
     erase_oldest_and_move(rnti, lcid);
     space--;
   }
@@ -168,7 +169,13 @@ void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
   // if (buffer_usage.count(rnti))
   //   buffer_usage[rnti] -= 1;
   buffer_usage[rnti][lcid] -= 1;
+  buf_log->info("[buf-debug] Erase from common queue: rnti=0x%x, lcid=%u, buffer_usage[rnti][lcid]=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
+
+  if (!user_first_pkt.count(rnti) || !user_first_pkt[rnti].count(lcid))
+    buf_log->info("[buf-debug] Warning user_first_pkt not exist: rnti=0x%x, lcid=%u\n", rnti, lcid);
+  
   std::list<pending_pkt>::iterator tmp = common_queue.erase(user_first_pkt[rnti][lcid]);
+
   for (; tmp != common_queue.end(); tmp++) {
     if (tmp->first.first == rnti && tmp->first.second == lcid)
       break;
