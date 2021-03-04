@@ -175,11 +175,15 @@ void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
     buf_log->info("[buf-debug] Warning user_first_pkt not exist: rnti=0x%x, lcid=%u\n", rnti, lcid);
   
   std::list<pending_pkt>::iterator tmp = common_queue.erase(user_first_pkt[rnti][lcid]);
+  buf_log->info("[buf-debug] Successful erase from common queue: rnti=0x%x, lcid=%u\n", rnti, lcid);
 
   for (; tmp != common_queue.end(); tmp++) {
     if (tmp->first.first == rnti && tmp->first.second == lcid)
       break;
   }
+  buf_log->info("[buf-debug] Reach the next pkt in common queue: rnti=0x%x, lcid=%u\n", rnti, lcid);
+  
+  user_first_pkt[rnti][lcid] = tmp;
   if (tmp == common_queue.end()) {
     user_first_pkt[rnti].erase(lcid);
     if (user_first_pkt[rnti].size() == 0)
@@ -188,7 +192,6 @@ void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
     if (buffer_usage[rnti].size() == 0)
       buffer_usage.erase(rnti);
   }
-
 }
 
 // void gtpu_buffer_manager::user_buffer_state::update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
