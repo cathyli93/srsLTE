@@ -136,6 +136,9 @@ uint16_t gtpu_buffer_manager::get_user_to_drop(uint32_t &lcid)
 
 void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu)
 {
+  uint32_t length = common_queue.size();
+  buf_log->info("[buf-debug] Push to commen buffer: rnti=0x%x, lcid=%u, common_buffer_size=%u\n", rnti, lcid, length);
+
   if (!buffer_usage.count(rnti)) {
     buffer_usage[rnti] = lcid_nof_pkts();
   }
@@ -143,6 +146,7 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
     buffer_usage[rnti][lcid] = 0;
   }
   buffer_usage[rnti][lcid] += 1;
+  buf_log->info("[buf-debug] Push to commen buffer: rnti=0x%x, lcid=%u, buffer_usage[rnti][lcid]=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
 
   std::pair<uint16_t, uint32_t> identity = {rnti, lcid};
   common_queue.push_back(std::make_pair(identity, std::move(sdu)));
