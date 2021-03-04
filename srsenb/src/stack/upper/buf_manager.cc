@@ -18,19 +18,22 @@ void gtpu_buffer_manager::init(srsenb::pdcp_interface_gtpu* pdcp_) {
   pdcp = pdcp_;
   buf_log->set_level(srslte::LOG_LEVEL_INFO);
 
-  pthread_rwlock_init(&rwlock, nullptr);
+  // pthread_rwlock_init(&rwlock, nullptr);
+  pthread_mutex_init(&mutex, NULL);
 }
 
 void gtpu_buffer_manager::stop() {
-  pthread_rwlock_wrlock(&rwlock);
+  // pthread_rwlock_wrlock(&rwlock);
   buffer_map.clear();
-  pthread_rwlock_unlock(&rwlock);
-  pthread_rwlock_destroy(&rwlock);
+  // pthread_rwlock_unlock(&rwlock);
+  // pthread_rwlock_destroy(&rwlock);
+  pthread_mutex_destroy(&mutex);
 }
 
 void gtpu_buffer_manager::rem_user(uint16_t rnti)
 {
-  pthread_rwlock_wrlock(&rwlock);
+  // pthread_rwlock_wrlock(&rwlock);
+  pthread_mutex_lock(&mutex);
   buf_log->info("[buf-debug] Remove user rnti=0x%x\n", rnti);
 
   buffer_map.erase(rnti);
@@ -42,13 +45,14 @@ void gtpu_buffer_manager::rem_user(uint16_t rnti)
       it++;
   }
   buffer_usage.erase(rnti);
-
-  pthread_rwlock_unlock(&rwlock);
+  pthread_mutex_unlock(&mutex);
+  // pthread_rwlock_unlock(&rwlock);
 }
 
 void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
 {
-  pthread_rwlock_wrlock(&rwlock);
+  pthread_mutex_lock(&mutex);
+  // pthread_rwlock_wrlock(&rwlock);
   if (!buffer_map.count(rnti)) {
     // buf_log->info("[buf-debug] New rnti: nof_unread_packets=%u, nof_unread_bytes=%u, nof_packets=%u, nof_bytes=%u\n", nof_unread_packets, nof_unread_bytes, nof_packets, nof_bytes);
     buffer_map[rnti] = user_buffer_state();
@@ -65,7 +69,8 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
     space--;
   }
   buf_log->info("[buf-debug] Update after common_buf -> rlc_buf rnti=0x%x, lcid=%u, rlc buffer size=%u\n", rnti, lcid, buffer_map.at(rnti).get_bearer_nof_packets(lcid));
-  pthread_rwlock_unlock(&rwlock);
+  // pthread_rwlock_unlock(&rwlock);
+  pthread_mutex_unlock(&mutex);
 }
 
 // uint32_t gtpu_buffer_manager::compute_nof_packets()
@@ -79,7 +84,8 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
 
 void gtpu_buffer_manager::push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu)
 {
-  pthread_rwlock_wrlock(&rwlock);
+  // pthread_rwlock_wrlock(&rwlock);
+  pthread_mutex_lock(&mutex);
   if (!buffer_map.count(rnti)) {
     buffer_map[rnti] = user_buffer_state();
   }
@@ -87,10 +93,9 @@ void gtpu_buffer_manager::push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_
     buffer_map.at(rnti).update_buffer_state_delta(lcid, 1, sdu->N_bytes);
     buf_log->info("[buf-debug] Push into RLC buffer rnti=0x%x, lcid=%u, rlc buffer size=%u\n", rnti, lcid, buffer_map.at(rnti).get_bearer_nof_packets(lcid));
     pdcp->write_sdu(rnti, lcid, std::move(sdu));
-    return;
   }
   
-  if (common_queue.size() < COMMON_CAPACITY_PKT) {
+  else if (common_queue.size() < COMMON_CAPACITY_PKT) {
     push_sdu_(rnti, lcid, std::move(sdu));
   } else {
     // uint32_t max_lcid;
@@ -102,11 +107,13 @@ void gtpu_buffer_manager::push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_
     // }
     buf_log->info("[buf-debug] Directly drop packet rnti=0x%x, lcid=%u, size=%u\n", rnti, lcid, sdu->N_bytes);
   }
-  pthread_rwlock_unlock(&rwlock);
+  // pthread_rwlock_unlock(&rwlock);
+  pthread_mutex_unlock(&mutex);
 }
 
 uint16_t gtpu_buffer_manager::get_user_to_drop(uint32_t &lcid)
 {
+  // pthread_mutex_lock(&mutex);
   if (buffer_usage.size() == 0)
     return 0;
   uint16_t max_rnti = buffer_usage.begin()->first;
@@ -124,6 +131,7 @@ uint16_t gtpu_buffer_manager::get_user_to_drop(uint32_t &lcid)
     }
   }
   return max_rnti;
+  // pthread_mutex_unlock(&mutex);
 }
 
 void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu)
@@ -175,20 +183,20 @@ void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
 // void gtpu_buffer_manager::user_buffer_state::update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
 void user_buffer_state::update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
 {
-  pthread_mutex_lock(&mutex);
+  // pthread_mutex_lock(&mutex);
   user_buffer_map[lcid] = std::make_pair(nof_unread_packets, nof_unread_bytes);
-  pthread_mutex_unlock(&mutex);
+  // pthread_mutex_unlock(&mutex);
 }
 
 void user_buffer_state::update_buffer_state_delta(uint32_t lcid, uint32_t delta_nof_packets, uint32_t delta_nof_bytes)
 {
-  pthread_mutex_lock(&mutex);
+  // pthread_mutex_lock(&mutex);
   if (!user_buffer_map.count(lcid)) {
     user_buffer_map[lcid] = std::make_pair(0, 0);
   }
   user_buffer_map[lcid].first += delta_nof_packets;
   user_buffer_map[lcid].second += delta_nof_bytes;
-  pthread_mutex_unlock(&mutex);
+  // pthread_mutex_unlock(&mutex);
 }
 
 // void gtpu_buffer_manager::user_buffer_state::set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
@@ -213,11 +221,11 @@ void user_buffer_state::update_buffer_state_delta(uint32_t lcid, uint32_t delta_
 
 uint32_t user_buffer_state::get_bearer_nof_packets(uint32_t lcid)
 {
-  pthread_mutex_lock(&mutex);
+  // pthread_mutex_lock(&mutex);
   uint32_t ret = 0;
   if (user_buffer_map.count(lcid))
     ret = user_buffer_map.at(lcid).first;
-  pthread_mutex_unlock(&mutex);
+  // pthread_mutex_unlock(&mutex);
   return ret;
 }
 

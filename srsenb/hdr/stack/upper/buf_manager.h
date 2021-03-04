@@ -40,8 +40,8 @@
 namespace srsenb {
   class user_buffer_state {
   public:
-    user_buffer_state() { pthread_mutex_init(&mutex, NULL); }
-    ~user_buffer_state() { pthread_mutex_destroy(&mutex); }
+    // user_buffer_state() {  }
+    // ~user_buffer_state() { pthread_mutex_destroy(&mutex); }
     void update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
     void update_buffer_state_delta(uint32_t lcid, uint32_t delta_nof_packets, uint32_t delta_nof_bytes);
     // uint32_t get_user_nof_packets() { return user_nof_packets; }
@@ -58,7 +58,6 @@ namespace srsenb {
 
     // uint32_t user_nof_packets = 0;
     // uint32_t user_nof_bytes = 0;
-    pthread_mutex_t mutex;
   };
 
 // bool my_cmp(std::pair<uint16_t, user_buffer_state*> left, std::pair<uint16_t, user_buffer_state*> right) {
@@ -142,7 +141,8 @@ private:
 
   srslte::log_ref  buf_log;
 
-  pthread_rwlock_t rwlock;
+  // pthread_rwlock_t rwlock;
+  pthread_mutex_t mutex;
 };
 
 } // namespace srsenb
