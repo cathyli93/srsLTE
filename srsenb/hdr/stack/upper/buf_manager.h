@@ -133,12 +133,6 @@ private:
   typedef std::map<uint16_t, lcid_nof_pkts> user_nof_pkts;
   user_nof_pkts buffer_usage;
 
-  // std::map<uint16_t, std::list<pending_pkt>::iterator> first_pkt_iter;
-  // std::map<uint16_t, uint32_t> buffer_usage;
-
-  // int nof_packets = 0;
-  // int nof_bytes = 0;
-
   srslte::log_ref  buf_log;
 
   // pthread_rwlock_t rwlock;
