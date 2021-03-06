@@ -170,6 +170,7 @@ void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
   buf_log->info("[erase_oldest_and_move] Before erase buffer_usage=%u\n", buffer_usage[rnti][lcid]);
   buffer_usage[rnti][lcid] -= (user_first_pkt[rnti][lcid]->second->N_bytes + 2);
   m_size -= (user_first_pkt[rnti][lcid]->second->N_bytes + 2);
+  buf_log->info("[erase_oldest_and_move] Before erase 2 pkt=%u, m_size=%u\n", user_first_pkt[rnti][lcid]->second->N_bytes + 2, m_size);
   std::list<pending_pkt>::iterator tmp = common_queue.erase(user_first_pkt[rnti][lcid]);
   buf_log->info("[erase_oldest_and_move] Erase packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
 
