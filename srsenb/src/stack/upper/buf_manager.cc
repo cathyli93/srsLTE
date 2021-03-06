@@ -33,8 +33,10 @@ void gtpu_buffer_manager::rem_user(uint16_t rnti)
   buffer_map.erase(rnti);
   user_first_pkt.erase(rnti);
   for (auto it = common_queue.begin(); it != common_queue.end(); ) {
-    if (it->first.first == rnti)
+    if (it->first.first == rnti) {
+      m_size -= (it->second->N_bytes + 2);
       it = common_queue.erase(it);
+    }
     else
       it++;
   }
@@ -55,15 +57,17 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
   buf_log->info("[update_buffer_state] Update from RLC rnti=0x%x, lcid=%u, rlc_buffer_size=%u, nof_unread_bytes=%u\n", rnti, lcid, nof_unread_packets, nof_unread_bytes);
   buffer_map[rnti].update_buffer_state(lcid, nof_unread_packets, nof_unread_bytes);
 
-  uint32_t space = BEARER_CAPACITY_PKT - nof_unread_packets;
+  uint32_t space = BEARER_CAPACITY_PKT - nof_unread_bytes;
   while (space > 0 && user_first_pkt.count(rnti) && user_first_pkt[rnti].count(lcid)) {
-    buffer_map[rnti].update_buffer_state_delta(lcid, 1, user_first_pkt[rnti][lcid]->second->N_bytes);
+    space -= (user_first_pkt[rnti][lcid]->second->N_bytes + 2);
+    buffer_map[rnti].update_buffer_state_delta(lcid, 1, user_first_pkt[rnti][lcid]->second->N_bytes + 2); // plus 2 to include PDCP header for future computation
     pdcp->write_sdu(rnti, lcid, std::move(user_first_pkt[rnti][lcid]->second));
     // buf_log->info("[update_buffer_state] From common to RLC rnti=0x%x, lcid=%u\n", rnti, lcid);
     erase_oldest_and_move(rnti, lcid);
-    space--;
   }
-  buf_log->info("[update_buffer_state] After common -> separate rnti=0x%x, lcid=%u, rlc_buffer_size=%u\n", rnti, lcid, buffer_map.at(rnti).get_bearer_nof_packets(lcid));
+  uint32_t bearer_pkts, bearer_bytes;
+  buffer_map[rnti]get_bearer_buffer_state(lcid, bearer_pkts, bearer_bytes)
+  buf_log->info("[update_buffer_state] After common -> separate rnti=0x%x, lcid=%u, rlc_buffer_size=%u\n", rnti, lcid, bearer_bytes);
   // pthread_rwlock_unlock(&rwlock);
   pthread_mutex_unlock(&mutex);
 }
@@ -75,27 +79,30 @@ void gtpu_buffer_manager::push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_
   if (!buffer_map.count(rnti)) {
     buffer_map[rnti] = user_buffer_state();
   }
-  if (buffer_map.at(rnti).get_bearer_nof_packets(lcid) < BEARER_CAPACITY_PKT) {
-    buffer_map.at(rnti).update_buffer_state_delta(lcid, 1, sdu->N_bytes);
-    buf_log->info("[push_sdu] Push into RLC buffer rnti=0x%x, lcid=%u, rlc_buffer_size=%u\n", rnti, lcid, buffer_map.at(rnti).get_bearer_nof_packets(lcid));
+  uint32_t bearer_nof_packets, bearer_nof_bytes;
+  buffer_map[rnti].get_bearer_buffer_state(lcid, bearer_nof_packets, bearer_nof_bytes);
+  uint32_t new_bytes = sdu->N_bytes + 2;
+  if (bearer_nof_bytes + new_bytes <= BEARER_CAPACITY_PKT) {
+    buffer_map[rnti].update_buffer_state_delta(lcid, 1, new_bytes);
+    buffer_map[rnti].get_bearer_buffer_state(lcid, bearer_nof_packets, bearer_nof_bytes);
+    buf_log->info("[push_sdu] Push into RLC buffer rnti=0x%x, lcid=%u, rlc_buffer_bytes=%u, rlc_buffer_packets=%u\n", rnti, lcid, bearer_nof_bytes, bearer_nof_packets);
     pdcp->write_sdu(rnti, lcid, std::move(sdu));
   }
-  
-  else if (common_queue.size() < COMMON_CAPACITY_PKT) {
+  // else if (common_queue.size() < COMMON_CAPACITY_PKT) {
+  else if (m_size + new_bytes <= COMMON_CAPACITY_PKT)
     push_sdu_(rnti, lcid, std::move(sdu));
-  } else {
+  else {
     uint32_t max_lcid;
     uint16_t max_user = get_user_to_drop(max_lcid);
     buf_log->info("[push_sdu] Incoming packet rnti=0x%x, lcid=%u; Drop oldest packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, max_user, max_lcid, buffer_usage[max_user][max_lcid]);
     // if (max_user > 0 && max_lcid > 0)
       
-    // if (max_user != rnti || max_lcid != lcid) {
+    // int new_bytes = sdu->N_bytes + 2;
     if (max_user > 0 && max_lcid > 0) {
-      erase_oldest_and_move(max_user, max_lcid);
+      while (new_bytes + m_size > COMMON_CAPACITY_PKT)
+        erase_oldest_and_move(max_user, max_lcid);
       push_sdu_(rnti, lcid, std::move(sdu));
     }
-    // }
-    // buf_log->info("[buf-debug] Directly drop packet rnti=0x%x, lcid=%u, size=%u\n", rnti, lcid, sdu->N_bytes);
   }
   // pthread_rwlock_unlock(&rwlock);
   pthread_mutex_unlock(&mutex);
@@ -126,9 +133,6 @@ uint16_t gtpu_buffer_manager::get_user_to_drop(uint32_t &lcid)
 
 void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu)
 {
-  // uint32_t length = common_queue.size();
-  
-
   if (!buffer_usage.count(rnti)) {
     buffer_usage[rnti] = lcid_nof_pkts();
   }
@@ -137,11 +141,12 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
   }
   // buf_log->info("[push_sdu_] Before push: rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
 
-  buffer_usage[rnti][lcid] += 1;
+  buffer_usage[rnti][lcid] += sdu->N_bytes + 2;
   buf_log->info("[push_sdu_] Push packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
 
   std::pair<uint16_t, uint32_t> identity = {rnti, lcid};
   common_queue.push_back(std::make_pair(identity, std::move(sdu)));
+  m_size += (sdu->N_bytes + 2)
   if (!user_first_pkt.count(rnti)) {
     user_first_pkt[rnti] = lcid_first_pkt();
   }
@@ -154,14 +159,13 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
 
 void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
 {
-  if (!buffer_usage.count(rnti) || !buffer_usage[rnti].count(lcid))
-    return;
-
-  buffer_usage[rnti][lcid] -= 1;
-
-  if (!user_first_pkt.count(rnti) || !user_first_pkt[rnti].count(lcid))
+  if (!buffer_usage.count(rnti) || !buffer_usage[rnti].count(lcid) || !user_first_pkt.count(rnti) || !user_first_pkt[rnti].count(lcid)) {
     buf_log->info("[erase_oldest_and_move] Warning user_first_pkt not exist: rnti=0x%x, lcid=%u\n", rnti, lcid);
+    return;
+  }
   
+  buffer_usage[rnti][lcid] -= (user_first_pkt[rnti][lcid]->second->N_bytes + 2);
+  m_size -= (user_first_pkt[rnti][lcid]->second->N_bytes + 2);
   std::list<pending_pkt>::iterator tmp = common_queue.erase(user_first_pkt[rnti][lcid]);
   buf_log->info("[erase_oldest_and_move] Erase packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
 
@@ -200,14 +204,24 @@ void user_buffer_state::update_buffer_state_delta(uint32_t lcid, uint32_t delta_
   // pthread_mutex_unlock(&mutex);
 }
 
-uint32_t user_buffer_state::get_bearer_nof_packets(uint32_t lcid)
+// uint32_t user_buffer_state::get_bearer_nof_packets(uint32_t lcid)
+// {
+//   // pthread_mutex_lock(&mutex);
+//   uint32_t ret = 0;
+//   if (user_buffer_map.count(lcid))
+//     ret = user_buffer_map.at(lcid).first;
+//   // pthread_mutex_unlock(&mutex);
+//   return ret;
+// }
+
+void user_buffer_state::get_bearer_buffer_state(uint32_t lcid, uint32_t &nof_packets, uint32_t &nof_bytes)
 {
-  // pthread_mutex_lock(&mutex);
-  uint32_t ret = 0;
-  if (user_buffer_map.count(lcid))
-    ret = user_buffer_map.at(lcid).first;
-  // pthread_mutex_unlock(&mutex);
-  return ret;
+  nof_packets = 0;
+  nof_bytes = 0; 
+  if (user_buffer_map.count(lcid)) {
+    nof_packets = user_buffer_map[lcid].first;
+    nof_bytes = user_buffer_map[lcid].second;
+  }
 }
 
-} // namespace srsenb
+}// namespace srsenb

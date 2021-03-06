@@ -40,16 +40,11 @@
 namespace srsenb {
   class user_buffer_state {
   public:
-    // user_buffer_state() {  }
-    // ~user_buffer_state() { pthread_mutex_destroy(&mutex); }
     void update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
     void update_buffer_state_delta(uint32_t lcid, uint32_t delta_nof_packets, uint32_t delta_nof_bytes);
-    // uint32_t get_user_nof_packets() { return user_nof_packets; }
-    // uint32_t get_user_nof_bytes() { return user_nof_bytes; }
-    uint32_t get_bearer_nof_packets(uint32_t lcid);
-    // int get_priority_value() { return -user_nof_packets; }
-    // void set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
-    // uint32_t compute_nof_packets();
+
+    // uint32_t get_bearer_nof_packets(uint32_t lcid);
+    void get_bearer_buffer_state(uint32_t lcid, uint32_t &nof_packet, uint32_t &nof_bytes);
 
   private:
     typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
@@ -84,8 +79,10 @@ public:
 
 private:
 
-  static const int COMMON_CAPACITY_PKT = 128;
-  static const int BEARER_CAPACITY_PKT = 16;
+  static const int COMMON_CAPACITY_PKT = 192000;
+  static const int BEARER_CAPACITY_PKT = 25600;
+
+  uint32_t m_size = 0;
 
   void erase_oldest_and_move(uint16_t rnti, uint32_t lcid);
   void push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu);
