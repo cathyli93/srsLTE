@@ -62,10 +62,10 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
   while (user_first_pkt.count(rnti) && user_first_pkt[rnti].count(lcid) && space >= user_first_pkt[rnti][lcid]->second->N_bytes + 2) {
     space -= (user_first_pkt[rnti][lcid]->second->N_bytes + 2);
     buf_log->info("[update_buffer_state] new space %u\n", space);
-    
+
     buffer_map[rnti].update_buffer_state_delta(lcid, 1, user_first_pkt[rnti][lcid]->second->N_bytes + 2); // plus 2 to include PDCP header for future computation
     pdcp->write_sdu(rnti, lcid, std::move(user_first_pkt[rnti][lcid]->second));
-    // buf_log->info("[update_buffer_state] From common to RLC rnti=0x%x, lcid=%u\n", rnti, lcid);
+    buf_log->info("[update_buffer_state] Call erase rnti=0x%x, lcid=%u\n", rnti, lcid);
     erase_oldest_and_move(rnti, lcid);
   }
   uint32_t bearer_pkts, bearer_bytes;
@@ -167,6 +167,7 @@ void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
     return;
   }
   
+  buf_log->info("[erase_oldest_and_move] Before erase buffer_usage=%u\n", buffer_usage[rnti][lcid]);
   buffer_usage[rnti][lcid] -= (user_first_pkt[rnti][lcid]->second->N_bytes + 2);
   m_size -= (user_first_pkt[rnti][lcid]->second->N_bytes + 2);
   std::list<pending_pkt>::iterator tmp = common_queue.erase(user_first_pkt[rnti][lcid]);
