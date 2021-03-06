@@ -66,7 +66,7 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
     erase_oldest_and_move(rnti, lcid);
   }
   uint32_t bearer_pkts, bearer_bytes;
-  buffer_map[rnti]get_bearer_buffer_state(lcid, bearer_pkts, bearer_bytes);
+  buffer_map[rnti].get_bearer_buffer_state(lcid, bearer_pkts, bearer_bytes);
   buf_log->info("[update_buffer_state] After common -> separate rnti=0x%x, lcid=%u, rlc_buffer_size=%u\n", rnti, lcid, bearer_bytes);
   // pthread_rwlock_unlock(&rwlock);
   pthread_mutex_unlock(&mutex);
