@@ -80,7 +80,7 @@ public:
 private:
 
   static const int COMMON_CAPACITY_PKT = 192000;
-  static const int BEARER_CAPACITY_PKT = 25600;
+  static const int BEARER_CAPACITY_PKT = 24000;
 
   uint32_t m_size = 0;
 

@@ -145,8 +145,8 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
   buf_log->info("[push_sdu_] Push packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
 
   std::pair<uint16_t, uint32_t> identity = {rnti, lcid};
-  common_queue.push_back(std::make_pair(identity, std::move(sdu)));
   m_size += (sdu->N_bytes + 2);
+  common_queue.push_back(std::make_pair(identity, std::move(sdu)));
   if (!user_first_pkt.count(rnti)) {
     user_first_pkt[rnti] = lcid_first_pkt();
   }
