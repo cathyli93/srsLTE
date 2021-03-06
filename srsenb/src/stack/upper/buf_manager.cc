@@ -11,6 +11,7 @@ namespace srsenb {
 void gtpu_buffer_manager::init(srsenb::pdcp_interface_gtpu* pdcp_) {
   pdcp = pdcp_;
   buf_log->set_level(srslte::LOG_LEVEL_INFO);
+  m_size = 0;
 
   // pthread_rwlock_init(&rwlock, nullptr);
   pthread_mutex_init(&mutex, NULL);
@@ -89,9 +90,9 @@ void gtpu_buffer_manager::push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_
     pdcp->write_sdu(rnti, lcid, std::move(sdu));
   }
   // else if (common_queue.size() < COMMON_CAPACITY_PKT) {
-  else if (m_size + new_bytes <= COMMON_CAPACITY_PKT)
+  else if (m_size + new_bytes <= COMMON_CAPACITY_PKT) {
     push_sdu_(rnti, lcid, std::move(sdu));
-  else {
+  } else {
     uint32_t max_lcid;
     uint16_t max_user = get_user_to_drop(max_lcid);
     buf_log->info("[push_sdu] Incoming packet rnti=0x%x, lcid=%u; Drop oldest packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, max_user, max_lcid, buffer_usage[max_user][max_lcid]);
@@ -139,9 +140,8 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
   if (!buffer_usage[rnti].count(lcid)) {
     buffer_usage[rnti][lcid] = 0;
   }
-  // buf_log->info("[push_sdu_] Before push: rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
-
   buffer_usage[rnti][lcid] += sdu->N_bytes + 2;
+
   buf_log->info("[push_sdu_] Push packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
 
   std::pair<uint16_t, uint32_t> identity = {rnti, lcid};
@@ -155,6 +155,7 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
     tmp--;
     user_first_pkt[rnti][lcid] = tmp;
   }
+  buf_log->info("[push_sdu_] Finish rnti=0x%x, lcid=%u\n", user_first_pkt[rnti][lcid]->first.first, user_first_pkt[rnti][lcid]->first.second);
 }
 
 void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
