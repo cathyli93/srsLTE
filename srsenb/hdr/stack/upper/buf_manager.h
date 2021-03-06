@@ -84,7 +84,7 @@ private:
 
   uint32_t m_size = 0;
 
-  void erase_oldest_and_move(uint16_t rnti, uint32_t lcid);
+  void erase_oldest_and_move(uint16_t rnti, uint32_t lcid, uint32_t pkt_size=0);
   void push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu);
   uint16_t get_user_to_drop(uint32_t &lcid);
 

@@ -59,14 +59,19 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
   buffer_map[rnti].update_buffer_state(lcid, nof_unread_packets, nof_unread_bytes);
 
   uint32_t space = BEARER_CAPACITY_PKT - nof_unread_bytes;
+  uint32_t pkt_size;
   while (user_first_pkt.count(rnti) && user_first_pkt[rnti].count(lcid) && space >= user_first_pkt[rnti][lcid]->second->N_bytes + 2) {
-    space -= (user_first_pkt[rnti][lcid]->second->N_bytes + 2);
+    pkt_size = user_first_pkt[rnti][lcid]->second->N_bytes + 2
+    space -= pkt_size;
     buf_log->info("[update_buffer_state] new space %u\n", space);
 
-    buffer_map[rnti].update_buffer_state_delta(lcid, 1, user_first_pkt[rnti][lcid]->second->N_bytes + 2); // plus 2 to include PDCP header for future computation
+    buffer_map[rnti].update_buffer_state_delta(lcid, 1, pkt_size); // plus 2 to include PDCP header for future computation
+    // buffer_usage[rnti][lcid] -= pkt_size;
+    // m_size -= pkt_size;
+
     pdcp->write_sdu(rnti, lcid, std::move(user_first_pkt[rnti][lcid]->second));
     buf_log->info("[update_buffer_state] Call erase rnti=0x%x, lcid=%u\n", rnti, lcid);
-    erase_oldest_and_move(rnti, lcid);
+    erase_oldest_and_move(rnti, lcid, pkt_size);
   }
   uint32_t bearer_pkts, bearer_bytes;
   buffer_map[rnti].get_bearer_buffer_state(lcid, bearer_pkts, bearer_bytes);
@@ -160,17 +165,21 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
   buf_log->info("[push_sdu_] Finish rnti=0x%x, lcid=%u\n", user_first_pkt[rnti][lcid]->first.first, user_first_pkt[rnti][lcid]->first.second);
 }
 
-void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
+void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid, uint32_t pkt_size = 0)
 {
   if (!buffer_usage.count(rnti) || !buffer_usage[rnti].count(lcid) || !user_first_pkt.count(rnti) || !user_first_pkt[rnti].count(lcid)) {
     buf_log->info("[erase_oldest_and_move] Warning user_first_pkt not exist: rnti=0x%x, lcid=%u\n", rnti, lcid);
     return;
   }
   
-  buf_log->info("[erase_oldest_and_move] Before erase buffer_usage=%u\n", buffer_usage[rnti][lcid]);
-  buffer_usage[rnti][lcid] -= (user_first_pkt[rnti][lcid]->second->N_bytes + 2);
-  m_size -= (user_first_pkt[rnti][lcid]->second->N_bytes + 2);
-  buf_log->info("[erase_oldest_and_move] Before erase 2 pkt=%u, m_size=%u\n", user_first_pkt[rnti][lcid]->second->N_bytes + 2, m_size);
+  // buf_log->info("[erase_oldest_and_move] Before erase buffer_usage=%u\n", buffer_usage[rnti][lcid]);
+  
+  // buf_log->info("[erase_oldest_and_move] Before erase 2 pkt=%u, m_size=%u\n", user_first_pkt[rnti][lcid]->second->N_bytes + 2, m_size);
+  if (pkt_size == 0)
+    pkt_size = user_first_pkt[rnti][lcid]->second->N_bytes + 2;
+  m_size -= pkt_size;
+  buffer_usage[rnti][lcid] -= pkt_size;
+
   std::list<pending_pkt>::iterator tmp = common_queue.erase(user_first_pkt[rnti][lcid]);
   buf_log->info("[erase_oldest_and_move] Erase packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
 
