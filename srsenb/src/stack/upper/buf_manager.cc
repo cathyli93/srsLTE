@@ -1,20 +1,14 @@
-// #include "srslte/upper/gtpu.h"
 #include "srsenb/hdr/stack/upper/buf_manager.h"
-// #include "srslte/common/network_utils.h"
 #include "srslte/common/log.h"
 #include <errno.h>
 #include <fcntl.h>
-// #include <linux/ip.h>
 #include <stdio.h>
-// #include <sys/socket.h>
 #include <unistd.h>
 
 // using namespace srslte;
 namespace srsenb {
 
 void gtpu_buffer_manager::init(srsenb::pdcp_interface_gtpu* pdcp_) {
-// int gtpu_buffer_manager::init(srsenb::rlc_interface_bufmng* rlc_) {
-  // rlc = rlc_;
   pdcp = pdcp_;
   buf_log->set_level(srslte::LOG_LEVEL_INFO);
 
@@ -73,15 +67,6 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
   // pthread_rwlock_unlock(&rwlock);
   pthread_mutex_unlock(&mutex);
 }
-
-// uint32_t gtpu_buffer_manager::compute_nof_packets()
-// {
-//   uint32_t total = 0;
-//   for (auto it = buffer_map.begin(); it != buffer_map.end(); it++) {
-//     total += it->second.compute_nof_packets();
-//   }
-//   return total;
-// }
 
 void gtpu_buffer_manager::push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu)
 {
@@ -172,9 +157,6 @@ void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
   if (!buffer_usage.count(rnti) || !buffer_usage[rnti].count(lcid))
     return;
 
-  // if (buffer_usage.count(rnti))
-  //   buffer_usage[rnti] -= 1;
-  // buf_log->info("[erase_oldest_and_move] Before erase: rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
   buffer_usage[rnti][lcid] -= 1;
 
   if (!user_first_pkt.count(rnti) || !user_first_pkt[rnti].count(lcid))
@@ -200,7 +182,6 @@ void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid)
   }
 }
 
-// void gtpu_buffer_manager::user_buffer_state::update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
 void user_buffer_state::update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
 {
   // pthread_mutex_lock(&mutex);
@@ -218,26 +199,6 @@ void user_buffer_state::update_buffer_state_delta(uint32_t lcid, uint32_t delta_
   user_buffer_map[lcid].second += delta_nof_bytes;
   // pthread_mutex_unlock(&mutex);
 }
-
-// void gtpu_buffer_manager::user_buffer_state::set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
-// void user_buffer_state::set_buffer_state(uint32_t nof_unread_packets, uint32_t nof_unread_bytes)
-// {
-//   pthread_mutex_lock(&mutex);
-//   user_nof_packets = nof_unread_packets;
-//   user_nof_bytes = nof_unread_bytes;
-//   pthread_mutex_unlock(&mutex);
-// }
-
-// uint32_t user_buffer_state::compute_nof_packets()
-// {
-//   pthread_mutex_lock(&mutex);
-//   uint32_t total = 0;
-//   for (auto it=user_buffer_map.begin(); it != user_buffer_map.end(); it++) {
-//     total += it->second.first;
-//   }
-//   pthread_mutex_unlock(&mutex);
-//   return total;
-// }
 
 uint32_t user_buffer_state::get_bearer_nof_packets(uint32_t lcid)
 {

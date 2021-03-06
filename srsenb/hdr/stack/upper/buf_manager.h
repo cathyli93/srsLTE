@@ -74,11 +74,6 @@ public:
   void stop();
 
   // interfaces for GTPU
-  // void add_bearer(uint16_t rnti, uint32_t lcid);
-  // void add_user(uint16_t rnti);
-  // void rem_bearer(uint16_t rnti, uint32_t lcid);
-  // void rem_user(uint16_t rnti);
-  // bool check_space_new_sdu(uint16_t rnti);
   void push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu);
 
   // interface for RLC
@@ -87,42 +82,22 @@ public:
   // interface for RRC
   void rem_user(uint16_t rnti);
 
-  // bool is_buffer_full() { return nof_packets >= BUF_CAPACITY_PKT; }
-
-  // gtpu_interface_pdcp
-  // void write_pdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t pdu) override;
-
-  // stack interface
-  // void handle_gtpu_s1u_rx_packet(srslte::unique_byte_buffer_t pdu, const sockaddr_in& addr);
-  // void handle_gtpu_m1u_rx_packet(srslte::unique_byte_buffer_t pdu, const sockaddr_in& addr);
-
 private:
-
-  // void update_priority_value(uint16_t rnti, uint32_t lcid);
-  // uint32_t compute_nof_packets();
-  void erase_oldest_and_move(uint16_t rnti, uint32_t lcid);
-  void push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu);
-  uint16_t get_user_to_drop(uint32_t &lcid);
 
   static const int COMMON_CAPACITY_PKT = 128;
   static const int BEARER_CAPACITY_PKT = 16;
 
-  // rlc_interface_bufmng* rlc = nullptr;
-  pdcp_interface_gtpu* pdcp = nullptr;
+  void erase_oldest_and_move(uint16_t rnti, uint32_t lcid);
+  void push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu);
+  uint16_t get_user_to_drop(uint32_t &lcid);
 
-  // auto cmp = [](std::pair<uint16_t, double> left, std::pair<uint16_t, double> right) { return left.second > right.second; };
-  // std::priority_queue<std::pair<uint16_t, double>, std::vector<std::pair<uint16_t, double>>, decltype(cmp)> gtpu_queue(cmp);
-  
-  // std::priority_queue<std::pair<uint16_t, user_buffer_state*>, std::vector<std::pair<uint16_t, user_buffer_state*>>, std::function<bool(std::pair<uint16_t, user_buffer_state*>, std::pair<uint16_t, user_buffer_state*>)>> gtpu_queue(my_cmp);
+  pdcp_interface_gtpu* pdcp = nullptr;
   
   typedef std::map<uint16_t, user_buffer_state>  user_buffer_state_map_t;
   user_buffer_state_map_t buffer_map;
 
-  // std::queue<srslte::unique_byte_buffer_t> common_queue;
-  // srslte::block_queue<unique_byte_buffer_t>(COMMON_CAPACITY_PKT) queue;
   typedef std::pair<uint16_t, uint32_t> pkt_identity;
   typedef std::pair<pkt_identity, srslte::unique_byte_buffer_t> pending_pkt;
-  // typedef list<pending_pkt> pkt_identity;
   std::list<pending_pkt> common_queue;
 
   typedef std::map<uint32_t, std::list<pending_pkt>::iterator> lcid_first_pkt;
@@ -135,7 +110,6 @@ private:
 
   srslte::log_ref  buf_log;
 
-  // pthread_rwlock_t rwlock;
   pthread_mutex_t mutex;
 };
 
