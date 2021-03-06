@@ -61,7 +61,7 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
   uint32_t space = BEARER_CAPACITY_PKT - nof_unread_bytes;
   uint32_t pkt_size;
   while (user_first_pkt.count(rnti) && user_first_pkt[rnti].count(lcid) && space >= user_first_pkt[rnti][lcid]->second->N_bytes + 2) {
-    pkt_size = user_first_pkt[rnti][lcid]->second->N_bytes + 2
+    pkt_size = user_first_pkt[rnti][lcid]->second->N_bytes + 2;
     space -= pkt_size;
     buf_log->info("[update_buffer_state] new space %u\n", space);
 
