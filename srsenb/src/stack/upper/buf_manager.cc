@@ -58,7 +58,7 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
   buf_log->info("[update_buffer_state] Update from RLC rnti=0x%x, lcid=%u, rlc_buffer_size=%u, nof_unread_bytes=%u\n", rnti, lcid, nof_unread_packets, nof_unread_bytes);
   buffer_map[rnti].update_buffer_state(lcid, nof_unread_packets, nof_unread_bytes);
 
-  uint32_t space = BEARER_CAPACITY_PKT - nof_unread_bytes;
+  int space = BEARER_CAPACITY_PKT - nof_unread_bytes;
   while (space > 0 && user_first_pkt.count(rnti) && user_first_pkt[rnti].count(lcid)) {
     space -= (user_first_pkt[rnti][lcid]->second->N_bytes + 2);
     buffer_map[rnti].update_buffer_state_delta(lcid, 1, user_first_pkt[rnti][lcid]->second->N_bytes + 2); // plus 2 to include PDCP header for future computation
