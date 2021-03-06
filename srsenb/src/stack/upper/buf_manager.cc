@@ -165,7 +165,7 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
   buf_log->info("[push_sdu_] Finish rnti=0x%x, lcid=%u\n", user_first_pkt[rnti][lcid]->first.first, user_first_pkt[rnti][lcid]->first.second);
 }
 
-void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid, uint32_t pkt_size = 0)
+void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid, uint32_t pkt_size)
 {
   if (!buffer_usage.count(rnti) || !buffer_usage[rnti].count(lcid) || !user_first_pkt.count(rnti) || !user_first_pkt[rnti].count(lcid)) {
     buf_log->info("[erase_oldest_and_move] Warning user_first_pkt not exist: rnti=0x%x, lcid=%u\n", rnti, lcid);
