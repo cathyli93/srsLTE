@@ -171,7 +171,7 @@ uint16_t gtpu_buffer_manager::get_user_to_drop(uint32_t &lcid)
   uint16_t max_rnti = 0;
   // uint32_t lcid = 0;
   lcid = 0;
-  int max_bytes = 0;
+  uint32_t max_bytes = 0;
   for (auto it = ue_db.begin(); it != ue_db.end(); it++) {
     uint32_t bytes;
     uint32_t tmp = it->second.get_drop_lcid_bytes(bytes);
