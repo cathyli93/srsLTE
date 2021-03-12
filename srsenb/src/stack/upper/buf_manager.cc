@@ -137,6 +137,7 @@ void gtpu_buffer_manager::get_metrics(buf_manager_metrics_t metrics[ENB_METRICS_
   int cnt=0;
   for (auto& it : ue_db) {
     it.second.metrics_read(&metrics[cnt]);
+    metrics[cnt].rnti = it.first;
     cnt++;
   }
 

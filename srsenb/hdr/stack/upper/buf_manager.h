@@ -61,7 +61,7 @@ uint32_t BEARER_CAPACITY_PKT = 24000;
 
 class ue_buf_metrics {
 public:
-  ue_buf_metrics(uint16_t rnti_) { metrics.rnti = rnti_; }
+  // ue_buf_metrics(uint16_t rnti_) { metrics.rnti = rnti_; }
   void rx_sdu(uint32_t bytes) { metrics.rx_sdus++; metrics.rx_brate += bytes * 8; }
   void drop_sdu(uint32_t bytes) { metrics.drop_sdus++; metrics.drop_brate += bytes * 8; }
   void tx_sdu(uint32_t bytes) { metrics.tx_sdus++; metrics.tx_brate += bytes * 8; }
