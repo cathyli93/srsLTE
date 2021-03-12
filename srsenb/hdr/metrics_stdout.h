@@ -41,6 +41,7 @@ public:
   metrics_stdout();
 
   void toggle_print(bool b);
+  void toggle_print_flora(bool b);
   void set_metrics(const enb_metrics_t& m, const uint32_t period_usec);
   void set_handle(enb_metrics_interface* enb_);
   void stop(){};
@@ -51,6 +52,7 @@ private:
   std::string float_to_eng_string(float f, int digits);
 
   bool                   do_print;
+  bool                   flora_print;
   uint8_t                n_reports;
   enb_metrics_interface* enb;
 };

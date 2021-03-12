@@ -61,7 +61,8 @@ char const* const prefixes[2][9] = {
     },
 };
 
-metrics_stdout::metrics_stdout() : do_print(false), n_reports(10), enb(NULL) {}
+// metrics_stdout::metrics_stdout() : do_print(false), n_reports(10), enb(NULL) {}
+metrics_stdout::metrics_stdout() : do_print(false), flora_print(false), n_reports(10), enb(NULL) {}
 
 void metrics_stdout::set_handle(enb_metrics_interface* enb_)
 {
@@ -73,12 +74,21 @@ void metrics_stdout::toggle_print(bool b)
   do_print = b;
 }
 
+void metrics_stdout::toggle_print_flora(bool b)
+{
+  flora_print = b;
+}
+
 void metrics_stdout::set_metrics(const enb_metrics_t& metrics, const uint32_t period_usec)
 {
-  if (!do_print || enb == nullptr) {
+  // if (!do_print || enb == nullptr) {
+  //   return;
+  // }
+  if ((!do_print && !flora_print) || enb == nullptr) {
     return;
   }
 
+  if (do_print) {
   if (metrics.rf.rf_error) {
     printf("RF status: O=%d, U=%d, L=%d\n", metrics.rf.rf_o, metrics.rf.rf_u, metrics.rf.rf_l);
   }
@@ -160,8 +170,24 @@ void metrics_stdout::set_metrics(const enb_metrics_t& metrics, const uint32_t pe
     cout << float_to_eng_string(metrics.stack.mac[i].ul_buffer, 2);
     cout << endl;
   }
-
   cout.flags(f); // For avoiding Coverity defect: Not restoring ostream format
+}
+  else if (flora_print) {
+    std::ios::fmtflags f(cout.flags()); // For avoiding Coverity defect: Not restoring ostream format
+
+    if (++n_reports > 10) {
+      n_reports = 0;
+      cout << endl;
+    }
+    for (int i = 0; i < metrics.stack.rrc.n_ues; i++) {
+      cout << "User=" << metrics.stack.bufm[i].rnti << " ";
+      cout << "rx_brate=" << metrics.stack.bufm[i].rx_brate << " ";
+      cout << "drop_brate=" << metrics.stack.bufm[i].drop_brate << " ";
+      cout << "tx_brate=" << metrics.stack.bufm[i].tx_brate << " ";
+      cout << "queued_bytes=" << metrics.stack.bufm[i].buffer_bytes << endl;
+    }
+    cout.flags(f);
+  }
 }
 
 std::string metrics_stdout::float_to_string(float f, int digits, int field_width)
