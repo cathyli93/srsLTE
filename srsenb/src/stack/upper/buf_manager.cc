@@ -364,10 +364,12 @@ void ue_buf_metrics::metrics_read(buf_manager_metrics_t* metrics_)
   // metrics.dl_buffer = sched->get_dl_buffer(rnti);
 
   memcpy(metrics_, &metrics, sizeof(buf_manager_metrics_t));
+  uint32_t old_buffer_sdus = metrics.buffer_sdus;
+  uint32_t old_buffer_bytes = metrics.buffer_bytes;
 
-  // phr_counter    = 0;
-  // dl_cqi_counter = 0;
   metrics        = {};
+  metrics.buffer_sdus = old_buffer_sdus;
+  metrics.buffer_bytes = old_buffer_bytes;
 }
 
 }// namespace srsenb
