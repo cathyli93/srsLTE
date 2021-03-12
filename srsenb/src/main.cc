@@ -369,6 +369,7 @@ void parse_args(all_args_t* args, int argc, char* argv[])
 }
 
 static bool do_metrics = false;
+static bool flora_metrics = false;
 
 void* input_loop(void* m)
 {
@@ -390,6 +391,14 @@ void* input_loop(void* m)
         metrics->toggle_print(do_metrics);
       } else if ('q' == key) {
         raise(SIGTERM);
+      } else if ('b' == key) {
+        flora_metrics = !flora_metrics;
+        if (flora_metrics) {
+          cout << "Enter b to stop trace." << endl;
+        } else {
+          cout << "Enter b to restart trace." << endl;
+        }
+        metrics->toggle_print_flora(flora_metrics);
       }
     }
   }
