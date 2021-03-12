@@ -56,7 +56,8 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
   //   buffer_map[rnti] = user_buffer_state();
   // }
   if (!ue_db.count(rnti)) {
-    ue_db[rnti] = ue_buf_metrics(rnti);
+    // ue_db[rnti] = ue_buf_metrics(rnti);
+    ue_db[rnti] = ue_buf_metrics();
   }
 
   buf_log->info("[update_rlc_buffer_state] Update from RLC rnti=0x%x, lcid=%u, rlc_buffer_size=%u, nof_unread_bytes=%u\n", rnti, lcid, nof_unread_packets, nof_unread_bytes);
@@ -91,7 +92,8 @@ void gtpu_buffer_manager::push_sdu(uint16_t rnti, uint32_t lcid, srslte::unique_
   //   buffer_map[rnti] = user_buffer_state();
   // }
   if (!ue_db.count(rnti)) {
-    ue_db[rnti] = ue_buf_metrics(rnti);
+    // ue_db[rnti] = ue_buf_metrics(rnti);
+    ue_db[rnti] = ue_buf_metrics();
   }
 
   uint32_t bearer_nof_packets, bearer_nof_bytes;
@@ -195,7 +197,8 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
 
   // buf_log->info("[push_sdu_] Push packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
   if (!ue_db.count(rnti)) {
-    ue_db[rnti] = ue_buf_metrics(rnti);
+    // ue_db[rnti] = ue_buf_metrics(rnti);
+    ue_db[rnti] = ue_buf_metrics();
   }
   ue_db[rnti].push_buffer(lcid, sdu->N_bytes + 2);
 
