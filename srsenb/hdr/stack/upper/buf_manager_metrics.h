@@ -14,8 +14,8 @@ struct buf_manager_metrics_t {
   int      rx_brate;
   int      drop_brate;
   int      tx_brate;
-  int 	   buffer_sdus;
-  int	   buffer_bytes;
+  uint32_t buffer_sdus;
+  uint32_t buffer_bytes;
 };
 
 } // namespace srsenb
