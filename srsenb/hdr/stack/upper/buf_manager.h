@@ -40,7 +40,7 @@
 
 namespace srsenb {
 
-uint32_t BEARER_CAPACITY_PKT = 24000;
+#define BEARER_CAPACITY_PKT 24000
 
   // class user_buffer_state {
   // public:
