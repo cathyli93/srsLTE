@@ -136,7 +136,7 @@ void gtpu_buffer_manager::get_metrics(buf_manager_metrics_t metrics[ENB_METRICS_
   pthread_mutex_lock(&mutex);
   int cnt=0;
   for (auto& it : ue_db) {
-    it->second.metrics_read(&metrics[cnt]);
+    it.second.metrics_read(&metrics[cnt]);
     cnt++;
   }
 
