@@ -173,7 +173,7 @@ uint16_t gtpu_buffer_manager::get_user_to_drop(uint32_t &lcid)
   lcid = 0;
   int max_bytes = 0;
   for (auto it = ue_db.begin(); it != ue_db.end(); it++) {
-    int bytes;
+    uint32_t bytes;
     uint32_t tmp = it->second.get_drop_lcid_bytes(bytes);
     if (bytes > max_bytes) {
       max_bytes = bytes;
@@ -341,7 +341,7 @@ int ue_buf_metrics::get_buffer_use_bytes(uint32_t lcid)
   return 0;
 }
 
-uint32_t ue_buf_metrics::get_drop_lcid_bytes(int &bytes)
+uint32_t ue_buf_metrics::get_drop_lcid_bytes(uint32_t &bytes)
 {
   bytes = 0;
   if (common_buffer_map.size() == 0)
