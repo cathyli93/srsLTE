@@ -33,31 +33,62 @@
 // #include "srslte/common/threads.h"
 #include "srslte/interfaces/enb_interfaces.h"
 #include "srslte/srslte.h"
+#include "buf_manager_metrics.h" // qr-data
 
 #ifndef SRSENB_BUFMNG_H
 #define SRSENB_BUFMNG_H
 
 namespace srsenb {
-  class user_buffer_state {
-  public:
-    void update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
-    void update_buffer_state_delta(uint32_t lcid, uint32_t delta_nof_packets, uint32_t delta_nof_bytes);
 
-    // uint32_t get_bearer_nof_packets(uint32_t lcid);
-    void get_bearer_buffer_state(uint32_t lcid, uint32_t &nof_packet, uint32_t &nof_bytes);
+int BEARER_CAPACITY_PKT = 24000;
 
-  private:
-    typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
-    typedef std::map<uint32_t, buffer_state_pair_t> lch_buffer_state_map_t;
-    lch_buffer_state_map_t user_buffer_map;
+  // class user_buffer_state {
+  // public:
+  //   void update_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
+  //   void update_buffer_state_delta(uint32_t lcid, uint32_t delta_nof_packets, uint32_t delta_nof_bytes);
 
-    // uint32_t user_nof_packets = 0;
-    // uint32_t user_nof_bytes = 0;
-  };
+  //   // uint32_t get_bearer_nof_packets(uint32_t lcid);
+  //   void get_bearer_buffer_state(uint32_t lcid, uint32_t &nof_packet, uint32_t &nof_bytes);
 
-// bool my_cmp(std::pair<uint16_t, user_buffer_state*> left, std::pair<uint16_t, user_buffer_state*> right) {
-//   return left.second->get_user_nof_packets() < right.second->get_user_nof_packets();
-// }
+  // private:
+  //   typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
+  //   typedef std::map<uint32_t, buffer_state_pair_t> lch_buffer_state_map_t;
+  //   lch_buffer_state_map_t user_buffer_map;
+
+  //   // uint32_t user_nof_packets = 0;
+  //   // uint32_t user_nof_bytes = 0;
+  // };
+
+class ue_buf_metrics {
+public:
+  ue_buf_metrics(uint16_t rnti_) { metrics.rnti = rnti_; }
+  void rx_sdu(uint32_t bytes) { metrics.rx_sdus++; metrics.rx_brate += bytes * 8; }
+  void drop_sdu(uint32_t bytes) { metrics.drop_sdus++; metrics.drop_brate += bytes * 8; }
+  void tx_sdu(uint32_t bytes) { metrics.tx_sdus++; metrics.tx_brate += bytes * 8; }
+  void metrics_read(buf_manager_metrics_t* metrics_);
+
+  // common buffer
+  int get_buffer_use(uint32_t lcid);
+  void push_buffer(uint32_t lcid, uint32_t bytes); 
+  void pop_buffer(uint32_t lcid, uint32_t bytes);
+  int get_buffer_use_bytes(uint32_t lcid);
+  uint32_t get_drop_lcid_bytes(int &bytes);
+
+  // RLC buffer
+  void update_rlc_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
+  void inc_rlc_buffer_state(uint32_t lcid, uint32_t delta_nof_packets, uint32_t delta_nof_bytes);
+  void get_bearer_buffer_state(uint32_t lcid, uint32_t &nof_packet, uint32_t &nof_bytes);
+  bool admit_new_sdu(uint32_t lcid, uint32_t bytes);
+
+private:
+  buf_manager_metrics_t metrics = {};
+  std::map<uint32_t, std::pair<int, int>> common_buffer_map;
+
+  // RLC buffer
+  typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
+  typedef std::map<uint32_t, buffer_state_pair_t> lch_buffer_state_map_t;
+  lch_buffer_state_map_t rlc_buffer_map;
+}
 
 class gtpu_buffer_manager : public buffer_interface_gtpu, public buffer_interface_rlc, public buffer_interface_rrc
 {
@@ -77,10 +108,11 @@ public:
   // interface for RRC
   void rem_user(uint16_t rnti);
 
+  void get_metrics(buf_manager_metrics_t metrics[ENB_METRICS_MAX_USERS]); //qr-data
+
 private:
 
   static const int COMMON_CAPACITY_PKT = 192000;
-  static const int BEARER_CAPACITY_PKT = 24000;
 
   uint32_t m_size = 0;
 
@@ -90,8 +122,8 @@ private:
 
   pdcp_interface_gtpu* pdcp = nullptr;
   
-  typedef std::map<uint16_t, user_buffer_state>  user_buffer_state_map_t;
-  user_buffer_state_map_t buffer_map;
+  // typedef std::map<uint16_t, user_buffer_state>  user_buffer_state_map_t;
+  // user_buffer_state_map_t buffer_map;
 
   typedef std::pair<uint16_t, uint32_t> pkt_identity;
   typedef std::pair<pkt_identity, srslte::unique_byte_buffer_t> pending_pkt;
@@ -101,9 +133,11 @@ private:
   typedef std::map<uint16_t, lcid_first_pkt> first_pkt;
   first_pkt user_first_pkt;
 
-  typedef std::map<uint32_t, uint32_t> lcid_nof_pkts;
-  typedef std::map<uint16_t, lcid_nof_pkts> user_nof_pkts;
-  user_nof_pkts buffer_usage;
+  // typedef std::map<uint32_t, uint32_t> lcid_nof_pkts;
+  // typedef std::map<uint16_t, lcid_nof_pkts> user_nof_pkts;
+  // user_nof_pkts buffer_usage;
+
+  std::map<uint16_t, ue_buf_metrics> ue_db;
 
   srslte::log_ref  buf_log;
 

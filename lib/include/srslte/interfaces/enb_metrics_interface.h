@@ -29,6 +29,7 @@
 #include "srsenb/hdr/stack/rrc/rrc_metrics.h"
 #include "srsenb/hdr/stack/upper/common_enb.h"
 #include "srsenb/hdr/stack/upper/s1ap_metrics.h"
+#include "srsenb/hdr/stack/upper/buf_manager_metrics.h" // qr-data
 #include "srslte/common/metrics_hub.h"
 #include "srslte/radio/radio_metrics.h"
 #include "srslte/upper/rlc_metrics.h"
@@ -40,6 +41,7 @@ struct stack_metrics_t {
   mac_metrics_t  mac[ENB_METRICS_MAX_USERS];
   rrc_metrics_t  rrc;
   s1ap_metrics_t s1ap;
+  buf_manager_metrics_t bufm[ENB_METRICS_MAX_USERS];  // qr-data
 };
 
 typedef struct {

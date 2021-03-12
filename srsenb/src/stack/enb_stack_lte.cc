@@ -192,6 +192,7 @@ bool enb_stack_lte::get_metrics(stack_metrics_t* metrics)
     mac.get_metrics(metrics.mac);
     rrc.get_metrics(metrics.rrc);
     s1ap.get_metrics(metrics.s1ap);
+    gtpu_buf.get_metrics(metrics.bufm); // qr-data
     pending_stack_metrics.push(metrics);
   });
 
