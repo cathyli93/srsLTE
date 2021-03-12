@@ -202,7 +202,7 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
   }
   ue_db[rnti].push_buffer(lcid, sdu->N_bytes + 2);
 
-  buf_log->info("[push_sdu_] Push packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, ue_db[rnti].get_buffer_use_bytes(lcid));
+  buf_log->info("[push_sdu_] Push packet rnti=0x%x, lcid=%u, buffer_usage=%u, total=%u\n", rnti, lcid, ue_db[rnti].get_buffer_use_bytes(lcid), ue_db[rnti].get_buffer_total_bytes());
 
   std::pair<uint16_t, uint32_t> identity = {rnti, lcid};
   m_size += (sdu->N_bytes + 2);
@@ -240,7 +240,7 @@ void gtpu_buffer_manager::erase_oldest_and_move(uint16_t rnti, uint32_t lcid, ui
   ue_db[rnti].pop_buffer(lcid, pkt_size);
 
   std::list<pending_pkt>::iterator tmp = common_queue.erase(user_first_pkt[rnti][lcid]);
-  buf_log->info("[erase_oldest_and_move] Erase packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, ue_db[rnti].get_buffer_use_bytes(lcid));
+  buf_log->info("[erase_oldest_and_move] Erase packet rnti=0x%x, lcid=%u, buffer_usage=%u, total=%u\n", rnti, lcid, ue_db[rnti].get_buffer_use_bytes(lcid), ue_db[rnti].get_buffer_total_bytes());
 
   for (; tmp != common_queue.end(); tmp++) {
     if (tmp->first.first == rnti && tmp->first.second == lcid)

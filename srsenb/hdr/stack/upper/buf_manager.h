@@ -73,6 +73,7 @@ public:
   void pop_buffer(uint32_t lcid, uint32_t bytes);
   int get_buffer_use_bytes(uint32_t lcid);
   uint32_t get_drop_lcid_bytes(uint32_t &bytes);
+  uint32_t get_buffer_total_bytes() { return metrics.buffer_bytes; }
 
   // RLC buffer
   void update_rlc_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
