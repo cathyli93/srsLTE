@@ -82,7 +82,7 @@ public:
 
 private:
   buf_manager_metrics_t metrics = {};
-  std::map<uint32_t, std::pair<int, int>> common_buffer_map;
+  std::map<uint32_t, std::pair<uint32_t, uint32_t>> common_buffer_map;
 
   // RLC buffer
   typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
