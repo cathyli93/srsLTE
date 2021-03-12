@@ -25,7 +25,7 @@
 #include <utility>
 // #include <string.h>
 
-// #include "common_enb.h"
+#include "common_enb.h"
 #include "srslte/common/buffer_pool.h"
 #include "srslte/common/logmap.h"
 #include "srslte/common/common.h"
@@ -77,7 +77,7 @@ public:
   // RLC buffer
   void update_rlc_buffer_state(uint32_t lcid, uint32_t nof_unread_packets, uint32_t nof_unread_bytes);
   void inc_rlc_buffer_state(uint32_t lcid, uint32_t delta_nof_packets, uint32_t delta_nof_bytes);
-  void get_bearer_buffer_state(uint32_t lcid, uint32_t &nof_packet, uint32_t &nof_bytes);
+  void get_rlc_buffer_state(uint32_t lcid, uint32_t &nof_packet, uint32_t &nof_bytes);
   bool admit_new_sdu(uint32_t lcid, uint32_t bytes);
 
 private:
@@ -88,7 +88,7 @@ private:
   typedef std::pair<uint32_t, uint32_t> buffer_state_pair_t;
   typedef std::map<uint32_t, buffer_state_pair_t> lch_buffer_state_map_t;
   lch_buffer_state_map_t rlc_buffer_map;
-}
+};
 
 class gtpu_buffer_manager : public buffer_interface_gtpu, public buffer_interface_rlc, public buffer_interface_rrc
 {

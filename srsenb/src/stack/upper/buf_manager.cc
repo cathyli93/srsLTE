@@ -342,11 +342,11 @@ uint32_t ue_buf_metrics::get_drop_lcid_bytes(int &bytes)
   bytes = 0;
   if (common_buffer_map.size() == 0)
     return 0;
-  bytes = common_buffer_map.begin()->second->second;
+  bytes = common_buffer_map.begin()->second.second;
   uint32_t lcid = common_buffer_map.begin()->first;
   for (auto it = common_buffer_map.begin(); it != common_buffer_map.end(); it++) {
-    if (it->second->second > bytes) {
-      bytes = it->second->second;
+    if (it->second.second > bytes) {
+      bytes = it->second.second;
       lcid = it->first;
     }
   }
