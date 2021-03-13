@@ -329,6 +329,13 @@ int mac::ack_info(uint32_t tti, uint16_t rnti, uint32_t enb_cc_idx, uint32_t tb_
     uint32_t nof_bytes = scheduler.dl_ack_info(tti, rnti, enb_cc_idx, tb_idx, ack);
     ue_db[rnti]->metrics_tx(ack, nof_bytes);
 
+    std::array<int, SRSLTE_MAX_CARRIERS> enb_ue_cc_map = scheduler.get_enb_ue_cc_map(rnti);
+    if (enb_ue_cc_map[enb_cc_idx] >= 0) {
+      // Error("User rnti=0x%x is not activated for carrier %d\n", rnti, enb_cc_idx);
+      // return ret;
+      ue_db[rnti]->metrics_tx_carrier(ack, nof_bytes, enb_ue_cc_map[enb_cc_idx]);
+    }
+
     if (ack) {
       if (nof_bytes > 64) { // do not count RLC status messages only
         rrc_h->set_activity_user(rnti);

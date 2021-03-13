@@ -22,6 +22,8 @@
 #ifndef SRSENB_MAC_METRICS_H
 #define SRSENB_MAC_METRICS_H
 
+#include "srslte/phy/common/phy_common.h"
+
 namespace srsenb {
 
 // MAC metrics per user
@@ -41,6 +43,9 @@ struct mac_metrics_t {
   float    dl_ri;
   float    dl_pmi;
   float    phr;
+  int      tx_brate_carriers[SRSLTE_MAX_CARRIERS];
+  int      tx_errors_carriers[SRSLTE_MAX_CARRIERS];
+  int      tx_pkts_carriers[SRSLTE_MAX_CARRIERS];
 };
 
 } // namespace srsenb

@@ -59,42 +59,142 @@ void metrics_csv::stop()
   }
 }
 
+// void metrics_csv::set_metrics(const enb_metrics_t& metrics, const uint32_t period_usec)
+// {
+//   if (file.is_open() && enb != NULL) {
+//     if (n_reports == 0) {
+//       file << "time;nof_ue;dl_brate;ul_brate\n";
+//     }
+
+//     // Time
+//     file << (metrics_report_period * n_reports) << ";";
+
+//     // UEs
+//     file << (metrics.stack.rrc.n_ues) << ";";
+
+//     // Sum up rates for all UEs
+//     float dl_rate_sum = 0.0, ul_rate_sum = 0.0;
+//     for (int i = 0; i < metrics.stack.rrc.n_ues; i++) {
+//       dl_rate_sum += metrics.stack.mac[i].tx_brate / (metrics.stack.mac[i].nof_tti * 1e-3);
+//       ul_rate_sum += metrics.stack.mac[i].rx_brate / (metrics.stack.mac[i].nof_tti * 1e-3);
+//     }
+
+//     // DL rate
+//     if (dl_rate_sum > 0) {
+//       file << float_to_string(SRSLTE_MAX(0.1, (float)dl_rate_sum), 2);
+//     } else {
+//       file << float_to_string(0, 2);
+//     }
+
+//     // UL rate
+//     if (ul_rate_sum > 0) {
+//       file << float_to_string(SRSLTE_MAX(0.1, (float)ul_rate_sum), 2, false);
+//     } else {
+//       file << float_to_string(0, 2, false);
+//     }
+
+//     file << "\n";
+
+//     n_reports++;
+//   } else {
+//     std::cout << "Error, couldn't write CSV file." << std::endl;
+//   }
+// }
+
+// qr-data
 void metrics_csv::set_metrics(const enb_metrics_t& metrics, const uint32_t period_usec)
 {
   if (file.is_open() && enb != NULL) {
     if (n_reports == 0) {
-      file << "time;nof_ue;dl_brate;ul_brate\n";
+      file << "time,ue,ul_brate,ul_bler,dl_brate,dl_bler,pcc_brate,pcc_bler,scc_brate,scc_bler,gtpu_brate,gtpu_drop_brate,gtpu_buffer\n";
     }
 
-    // Time
-    file << (metrics_report_period * n_reports) << ";";
-
-    // UEs
-    file << (metrics.stack.rrc.n_ues) << ";";
-
-    // Sum up rates for all UEs
-    float dl_rate_sum = 0.0, ul_rate_sum = 0.0;
     for (int i = 0; i < metrics.stack.rrc.n_ues; i++) {
-      dl_rate_sum += metrics.stack.mac[i].tx_brate / (metrics.stack.mac[i].nof_tti * 1e-3);
-      ul_rate_sum += metrics.stack.mac[i].rx_brate / (metrics.stack.mac[i].nof_tti * 1e-3);
+      // Time
+      file << (metrics_report_period * n_reports) << ",";
+
+      // rnti
+      file << metrics.stack.mac[i].rnti << ",";
+
+      // ul_brate
+      float ul_rate = metrics.stack.mac[i].rx_brate / metrics_report_period;
+      if (ul_rate > 0) {
+        file << float_to_string(SRSLTE_MAX(0.1, (float)ul_rate), 2) << ",";
+      } else {
+        file << float_to_string(0, 2) << ",";
+      }
+
+      // ul_bler
+      if (metrics.stack.mac[i].rx_pkts > 0 && metrics.stack.mac[i].rx_errors) {
+        file << float_to_string(SRSLTE_MAX(0.001, (float)metrics.stack.mac[i].rx_errors / metrics.stack.mac[i].rx_pkts), 2) << ",";
+      } else {
+        file << float_to_string(0, 2) << ",";
+      }
+
+      // dl_brate
+      float dl_rate = metrics.stack.mac[i].tx_brate / metrics_report_period;
+      if (dl_rate > 0) {
+        file << float_to_string(SRSLTE_MAX(0.1, (float)dl_rate), 2) << ",";
+      } else {
+        file << float_to_string(0, 2) << ",";
+      }
+
+      // dl_bler
+      if (metrics.stack.mac[i].tx_pkts > 0 && metrics.stack.mac[i].tx_errors) {
+        file << float_to_string(SRSLTE_MAX(0.001, (float)metrics.stack.mac[i].tx_errors / metrics.stack.mac[i].tx_pkts), 2) << ",";
+      } else {
+        file << float_to_string(0, 2) << ",";
+      }
+
+      // pcc_brate
+      float pcc_brate = metrics.stack.mac[i].tx_brate_carriers[0] / metrics_report_period;
+      if (pcc_brate > 0) {
+        file << float_to_string(SRSLTE_MAX(0.1, (float)pcc_brate), 2) << ",";
+      } else {
+        file << float_to_string(0, 2) << ",";
+      }
+
+      // pcc_bler
+      if (metrics.stack.mac[i].tx_pkts_carriers[0] > 0 && metrics.stack.mac[i].tx_errors_carriers[0]) {
+        file << float_to_string(SRSLTE_MAX(0.001, (float)metrics.stack.mac[i].tx_errors_carriers[0] / metrics.stack.mac[i].tx_pkts_carriers[0]), 2) << ",";
+      } else {
+        file << float_to_string(0, 2) << ",";
+      }
+
+      // scc_brate
+      float scc_brate = metrics.stack.mac[i].tx_brate_carriers[1] / metrics_report_period;
+      if (scc_brate > 0) {
+        file << float_to_string(SRSLTE_MAX(0.1, (float)scc_brate), 2) << ",";
+      } else {
+        file << float_to_string(0, 2) << ",";
+      }
+
+      // scc_bler
+      if (metrics.stack.mac[i].tx_pkts_carriers[1] > 0 && metrics.stack.mac[i].tx_errors_carriers[1]) {
+        file << float_to_string(SRSLTE_MAX(0.001, (float)metrics.stack.mac[i].tx_errors_carriers[1] / metrics.stack.mac[i].tx_pkts_carriers[1]), 2) << ",";
+      } else {
+        file << float_to_string(0, 2) << ",";
+      }
+
+      // gtpu_brate
+      float gtpu_brate = metrics.stack.bufm[i].rx_brate / metrics_report_period;
+      if (gtpu_brate > 0) {
+        file << float_to_string(SRSLTE_MAX(0.1, (float)gtpu_brate), 2) << ",";
+      } else {
+        file << float_to_string(0, 2) << ",";
+      }
+
+      // gtpu_brate
+      float gtpu_drop_brate = metrics.stack.bufm[i].drop_brate / metrics_report_period;
+      if (gtpu_drop_brate > 0) {
+        file << float_to_string(SRSLTE_MAX(0.1, (float)gtpu_drop_brate), 2) << ",";
+      } else {
+        file << float_to_string(0, 2) << ",";
+      }
+
+      // gtpu_buffer
+      file << metrics.stack.bufm[i].buffer_bytes << endl;
     }
-
-    // DL rate
-    if (dl_rate_sum > 0) {
-      file << float_to_string(SRSLTE_MAX(0.1, (float)dl_rate_sum), 2);
-    } else {
-      file << float_to_string(0, 2);
-    }
-
-    // UL rate
-    if (ul_rate_sum > 0) {
-      file << float_to_string(SRSLTE_MAX(0.1, (float)ul_rate_sum), 2, false);
-    } else {
-      file << float_to_string(0, 2, false);
-    }
-
-    file << "\n";
-
     n_reports++;
   } else {
     std::cout << "Error, couldn't write CSV file." << std::endl;
@@ -104,7 +204,15 @@ void metrics_csv::set_metrics(const enb_metrics_t& metrics, const uint32_t perio
 std::string metrics_csv::float_to_string(float f, int digits, bool add_semicolon)
 {
   std::ostringstream os;
-  const int          precision = (f == 0.0) ? digits - 1 : digits - log10f(fabs(f)) - 2 * DBL_EPSILON;
+  if (isnan(f) or fabs(f) < 0.0001) {
+    f         = 0.0;
+    precision = digits - 1;
+  } else {
+    precision = digits - (int)(log10f(fabs(f)) - 2 * DBL_EPSILON);
+  }
+  if (precision == -1) {
+    precision = 0;
+  }
   os << std::fixed << std::setprecision(precision) << f;
   if (add_semicolon)
     os << ';';

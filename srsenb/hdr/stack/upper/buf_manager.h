@@ -122,9 +122,6 @@ private:
   uint16_t get_user_to_drop(uint32_t &lcid);
 
   pdcp_interface_gtpu* pdcp = nullptr;
-  
-  // typedef std::map<uint16_t, user_buffer_state>  user_buffer_state_map_t;
-  // user_buffer_state_map_t buffer_map;
 
   typedef std::pair<uint16_t, uint32_t> pkt_identity;
   typedef std::pair<pkt_identity, srslte::unique_byte_buffer_t> pending_pkt;

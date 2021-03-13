@@ -95,6 +95,7 @@ public:
   void metrics_dl_pmi(uint32_t dl_cqi);
   void metrics_dl_cqi(uint32_t dl_cqi);
   void metrics_cnt();
+  void metrics_tx_carrier(bool crc, uint32_t tbs, uint32_t ue_cc_idx);
 
   bool is_phy_added = false;
   int  read_pdu(uint32_t lcid, uint8_t* payload, uint32_t requested_bytes) final;

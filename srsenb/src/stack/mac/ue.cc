@@ -626,6 +626,16 @@ void ue::metrics_tx(bool crc, uint32_t tbs)
   metrics.tx_pkts++;
 }
 
+void ue::metrics_tx_carrier(bool crc, uint32_t tbs, uint32_t ue_cc_idx)
+{
+  if (crc) {
+    metrics.tx_brate_carriers[ue_cc_idx] += tbs * 8;
+  } else {
+    metrics.tx_errors_carriers[ue_cc_idx]++;
+  }
+  metrics.tx_pkts_carriers[ue_cc_idx]++;
+}
+
 void ue::metrics_cnt()
 {
   metrics.nof_tti++;
