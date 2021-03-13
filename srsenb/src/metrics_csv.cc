@@ -204,6 +204,7 @@ void metrics_csv::set_metrics(const enb_metrics_t& metrics, const uint32_t perio
 std::string metrics_csv::float_to_string(float f, int digits, bool add_semicolon)
 {
   std::ostringstream os;
+  int precision;
   if (isnan(f) or fabs(f) < 0.0001) {
     f         = 0.0;
     precision = digits - 1;
