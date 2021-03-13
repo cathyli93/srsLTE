@@ -28,6 +28,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <unistd.h>
+#include <chrono>
 
 #include <stdio.h>
 
@@ -106,12 +107,16 @@ void metrics_csv::set_metrics(const enb_metrics_t& metrics, const uint32_t perio
 {
   if (file.is_open() && enb != NULL) {
     if (n_reports == 0) {
-      file << "time,ue,ul_brate,ul_bler,dl_brate,dl_bler,pcc_brate,pcc_bler,scc_brate,scc_bler,gtpu_brate,gtpu_drop_brate,gtpu_buffer\n";
+      file << "cnt,timestamp,ue,ul_brate,ul_bler,dl_brate,dl_bler,pcc_brate,pcc_bler,scc_brate,scc_bler,gtpu_brate,gtpu_drop_brate,gtpu_buffer\n";
     }
 
     for (int i = 0; i < metrics.stack.rrc.n_ues; i++) {
       // Time
       file << (metrics_report_period * n_reports) << ",";
+
+      auto unix_timestamp = std::chrono::seconds(std::time(NULL));
+      int unix_timestamp_seconds = std::chrono::seconds(unix_timestamp).count();
+      file << unix_timestamp_seconds << ",";
 
       // rnti
       file << metrics.stack.mac[i].rnti << ",";
