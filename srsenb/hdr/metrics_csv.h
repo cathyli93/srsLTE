@@ -49,7 +49,8 @@ public:
   void stop();
 
 private:
-  std::string float_to_string(float f, int digits, bool add_semicolon = true);
+  // std::string float_to_string(float f, int digits, bool add_semicolon = true);
+  std::string float_to_string(float f, int digits, bool add_comma = true);
 
   float                  metrics_report_period;
   std::ofstream          file;

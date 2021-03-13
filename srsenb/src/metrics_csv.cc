@@ -53,7 +53,7 @@ void metrics_csv::set_handle(enb_metrics_interface* enb_)
 void metrics_csv::stop()
 {
   if (file.is_open()) {
-    file << "#eof\n";
+    // file << "#eof\n";
     file.flush();
     file.close();
   }
@@ -119,77 +119,77 @@ void metrics_csv::set_metrics(const enb_metrics_t& metrics, const uint32_t perio
       // ul_brate
       float ul_rate = metrics.stack.mac[i].rx_brate / metrics_report_period;
       if (ul_rate > 0) {
-        file << float_to_string(SRSLTE_MAX(0.1, (float)ul_rate), 2) << ",";
+        file << float_to_string(SRSLTE_MAX(0.1, (float)ul_rate), 2);
       } else {
-        file << float_to_string(0, 2) << ",";
+        file << float_to_string(0, 2);
       }
 
       // ul_bler
       if (metrics.stack.mac[i].rx_pkts > 0 && metrics.stack.mac[i].rx_errors) {
-        file << float_to_string(SRSLTE_MAX(0.001, (float)metrics.stack.mac[i].rx_errors / metrics.stack.mac[i].rx_pkts), 2) << ",";
+        file << float_to_string(SRSLTE_MAX(0.001, (float)metrics.stack.mac[i].rx_errors / metrics.stack.mac[i].rx_pkts), 2);
       } else {
-        file << float_to_string(0, 2) << ",";
+        file << float_to_string(0, 2);
       }
 
       // dl_brate
       float dl_rate = metrics.stack.mac[i].tx_brate / metrics_report_period;
       if (dl_rate > 0) {
-        file << float_to_string(SRSLTE_MAX(0.1, (float)dl_rate), 2) << ",";
+        file << float_to_string(SRSLTE_MAX(0.1, (float)dl_rate), 2);
       } else {
-        file << float_to_string(0, 2) << ",";
+        file << float_to_string(0, 2);
       }
 
       // dl_bler
       if (metrics.stack.mac[i].tx_pkts > 0 && metrics.stack.mac[i].tx_errors) {
-        file << float_to_string(SRSLTE_MAX(0.001, (float)metrics.stack.mac[i].tx_errors / metrics.stack.mac[i].tx_pkts), 2) << ",";
+        file << float_to_string(SRSLTE_MAX(0.001, (float)metrics.stack.mac[i].tx_errors / metrics.stack.mac[i].tx_pkts), 2);
       } else {
-        file << float_to_string(0, 2) << ",";
+        file << float_to_string(0, 2);
       }
 
       // pcc_brate
       float pcc_brate = metrics.stack.mac[i].tx_brate_carriers[0] / metrics_report_period;
       if (pcc_brate > 0) {
-        file << float_to_string(SRSLTE_MAX(0.1, (float)pcc_brate), 2) << ",";
+        file << float_to_string(SRSLTE_MAX(0.1, (float)pcc_brate), 2);
       } else {
-        file << float_to_string(0, 2) << ",";
+        file << float_to_string(0, 2);
       }
 
       // pcc_bler
       if (metrics.stack.mac[i].tx_pkts_carriers[0] > 0 && metrics.stack.mac[i].tx_errors_carriers[0]) {
-        file << float_to_string(SRSLTE_MAX(0.001, (float)metrics.stack.mac[i].tx_errors_carriers[0] / metrics.stack.mac[i].tx_pkts_carriers[0]), 2) << ",";
+        file << float_to_string(SRSLTE_MAX(0.001, (float)metrics.stack.mac[i].tx_errors_carriers[0] / metrics.stack.mac[i].tx_pkts_carriers[0]), 2);
       } else {
-        file << float_to_string(0, 2) << ",";
+        file << float_to_string(0, 2);
       }
 
       // scc_brate
       float scc_brate = metrics.stack.mac[i].tx_brate_carriers[1] / metrics_report_period;
       if (scc_brate > 0) {
-        file << float_to_string(SRSLTE_MAX(0.1, (float)scc_brate), 2) << ",";
+        file << float_to_string(SRSLTE_MAX(0.1, (float)scc_brate), 2);
       } else {
-        file << float_to_string(0, 2) << ",";
+        file << float_to_string(0, 2);
       }
 
       // scc_bler
       if (metrics.stack.mac[i].tx_pkts_carriers[1] > 0 && metrics.stack.mac[i].tx_errors_carriers[1]) {
-        file << float_to_string(SRSLTE_MAX(0.001, (float)metrics.stack.mac[i].tx_errors_carriers[1] / metrics.stack.mac[i].tx_pkts_carriers[1]), 2) << ",";
+        file << float_to_string(SRSLTE_MAX(0.001, (float)metrics.stack.mac[i].tx_errors_carriers[1] / metrics.stack.mac[i].tx_pkts_carriers[1]), 2);
       } else {
-        file << float_to_string(0, 2) << ",";
+        file << float_to_string(0, 2);
       }
 
       // gtpu_brate
       float gtpu_brate = metrics.stack.bufm[i].rx_brate / metrics_report_period;
       if (gtpu_brate > 0) {
-        file << float_to_string(SRSLTE_MAX(0.1, (float)gtpu_brate), 2) << ",";
+        file << float_to_string(SRSLTE_MAX(0.1, (float)gtpu_brate), 2);
       } else {
-        file << float_to_string(0, 2) << ",";
+        file << float_to_string(0, 2);
       }
 
       // gtpu_brate
       float gtpu_drop_brate = metrics.stack.bufm[i].drop_brate / metrics_report_period;
       if (gtpu_drop_brate > 0) {
-        file << float_to_string(SRSLTE_MAX(0.1, (float)gtpu_drop_brate), 2) << ",";
+        file << float_to_string(SRSLTE_MAX(0.1, (float)gtpu_drop_brate), 2);
       } else {
-        file << float_to_string(0, 2) << ",";
+        file << float_to_string(0, 2);
       }
 
       // gtpu_buffer
@@ -201,22 +201,22 @@ void metrics_csv::set_metrics(const enb_metrics_t& metrics, const uint32_t perio
   }
 }
 
-std::string metrics_csv::float_to_string(float f, int digits, bool add_semicolon)
+std::string metrics_csv::float_to_string(float f, int digits, bool add_comma)
 {
   std::ostringstream os;
   int precision;
   if (isnan(f) or fabs(f) < 0.0001) {
     f         = 0.0;
-    precision = digits - 1;
+    precision = 0;
+  } else if (f >= 1) {
+      precision = digits;
   } else {
     precision = digits - (int)(log10f(fabs(f)) - 2 * DBL_EPSILON);
   }
-  if (precision == -1) {
-    precision = 0;
-  }
+
   os << std::fixed << std::setprecision(precision) << f;
-  if (add_semicolon)
-    os << ';';
+  if (add_comma)
+    os << ',';
   return os.str();
 }
 
