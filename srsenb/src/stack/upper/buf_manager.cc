@@ -1,9 +1,12 @@
 #include "srsenb/hdr/stack/upper/buf_manager.h"
 #include "srslte/common/log.h"
+#include "srslte/upper/gtpu.h"
+#include "srslte/common/network_utils.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <linux/ip.h>
 
 // using namespace srslte;
 namespace srsenb {
@@ -198,13 +201,17 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
   // buf_log->info("[push_sdu_] Push packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
 
   // qr-ecn
-  char sdu_buf[201];
-  uint32_t print_len = sdu->N_bytes > 100 ? 100 : sdu->N_bytes;
-  sdu_buf[print_len * 2] = 0;
-  for (uint32_t j = 0; j < print_len; j++) {
-    sprintf(&sdu_buf[2 * j], "%02X", sdu->msg[j]);
+  if (m_size * 1.0 / COMMON_CAPACITY_PKT >= MARK_THRESH) {
+    struct iphdr* ip_pkt = (struct iphdr*)sdu->msg;
+    if (ip_pkt->version != 4) {
+      buf_log->warning("[ecn] Invalid IP version for ECN marking\n");
+    } else {
+      uint8_t mask = 3;
+      sdu->msg[1] |= mask;
+      buf_log->info("[marking] rnti=0x%x, lcid=%u, ip_src=%s, ip_dst=%s, id=%d, tos=0x%x\n", rnti, lcid, srslte::gtpu_ntoa(ip_pkt->saddr).c_str(), srslte::gtpu_ntoa(ip_pkt->daddr).c_str(), ntohs(ip_pkt->id), ip_pkt->tos);
+    }
   }
-  buf_log->info("[ecn] rnti=0x%x, lcid=%u, hex=%s\n", rnti, lcid, sdu_buf);
+  // qr-ecn end
 
   if (!ue_db.count(rnti)) {
     // ue_db[rnti] = ue_buf_metrics(rnti);
