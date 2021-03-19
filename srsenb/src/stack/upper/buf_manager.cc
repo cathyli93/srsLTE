@@ -196,6 +196,16 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
   // buffer_usage[rnti][lcid] += sdu->N_bytes + 2;
 
   // buf_log->info("[push_sdu_] Push packet rnti=0x%x, lcid=%u, buffer_usage=%u\n", rnti, lcid, buffer_usage[rnti][lcid]);
+
+  // qr-ecn
+  char sdu_buf[201];
+  uint32_t print_len = sdu->N_bytes > 100 ? 100 : sdu->N_bytes;
+  sdu_buf[print_len * 2] = 0;
+  for (int j = 0; j < print_len; j++) {
+    sprintf(&sdu_buf[2 * j], "%02X", sdu->buffer[j]);
+  }
+  buf_log->info("[ecn] rnti=0x%x, lcid=%u, hex=%s\n", rnti, lcid, sdu_buf);
+
   if (!ue_db.count(rnti)) {
     // ue_db[rnti] = ue_buf_metrics(rnti);
     ue_db[rnti] = ue_buf_metrics();
