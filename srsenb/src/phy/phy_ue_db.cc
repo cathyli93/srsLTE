@@ -303,6 +303,7 @@ void phy_ue_db::addmod_rnti(uint16_t                                            
       // Set Cell state, all inactive by default except PCell
       if (cell_info.state != cell_state_primary) {
         cell_info.state = cell_state_secondary_inactive;
+        printf("[ca-debug]phy_ue_db.cc:addmod_rnti, set SCell inactive; rnti=0x%x, ue_cc_idx=%u, enb_cc_idx=%u\n", rnti, ue_cc_idx, cell_info.enb_cc_idx);
       }
 
       // Count Serving cell

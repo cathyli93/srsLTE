@@ -183,12 +183,12 @@ void cc_worker::set_tti(uint32_t tti_)
 int cc_worker::add_rnti(uint16_t rnti, bool is_pcell, bool is_temporal)
 {
 
-  if (not is_temporal) {
+  if (not is_temporal && is_pcell) {
     if (srslte_enb_dl_add_rnti(&enb_dl, rnti)) {
       return -1;
     }
     if (srslte_enb_ul_add_rnti(&enb_ul, rnti)) {
-      return -1;
+        return -1;
     }
   }
 
