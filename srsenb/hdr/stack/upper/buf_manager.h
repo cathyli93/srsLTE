@@ -114,7 +114,7 @@ public:
 private:
 
   static const int COMMON_CAPACITY_PKT = 192000;
-  static const float MARK_THRESH = 0.7;
+  static constexpr float MARK_THRESH = 0.7;
 
   uint32_t m_size = 0;
 
