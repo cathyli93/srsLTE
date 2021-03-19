@@ -202,7 +202,7 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
   uint32_t print_len = sdu->N_bytes > 100 ? 100 : sdu->N_bytes;
   sdu_buf[print_len * 2] = 0;
   for (uint32_t j = 0; j < print_len; j++) {
-    sprintf(&sdu_buf[2 * j], "%02X", sdu->buffer[j]);
+    sprintf(&sdu_buf[2 * j], "%02X", sdu->msg[j]);
   }
   buf_log->info("[ecn] rnti=0x%x, lcid=%u, hex=%s\n", rnti, lcid, sdu_buf);
 
