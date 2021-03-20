@@ -11,6 +11,38 @@
 // using namespace srslte;
 namespace srsenb {
 
+uint16_t ip_header_checksum(iphdr* ip)
+{
+    uint16_t *buf = (uint16_t *) ip;
+    uint32_t sum = 0;
+    uint16_t checksum = 0;
+
+    int counter = ip->ihl * 4;
+    while (counter > 1)
+    {
+      printf("sum=%x, curr=%x, ", sum, *buf);
+         // cout << std::hex << sum << "," << *buf;
+      sum += *buf;
+      buf++;
+         // cout << "," << sum << "\n";
+      printf("sum=%x\n", sum);
+      counter -= 2;
+    }
+
+    if (counter > 1)
+      sum += * (uint8_t *) buf;
+
+    printf("sum=%x, check=%x, ", ip->check, sum);
+    sum -= ip->check;
+    printf("sum=%x\n", sum);
+
+    while (sum >> 16)
+            sum = (sum & 0xFFFF) + (sum >> 16);
+    checksum = ~sum;
+    printf("checksum=%x\n", ip->check);
+    return checksum;
+}
+
 void gtpu_buffer_manager::init(srsenb::pdcp_interface_gtpu* pdcp_) {
   pdcp = pdcp_;
   buf_log->set_level(srslte::LOG_LEVEL_INFO);
@@ -206,8 +238,9 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
     if (ip_pkt->version != 4) {
       buf_log->warning("[ecn] Invalid IP version for ECN marking\n");
     } else {
-      uint8_t mask = 3;
-      sdu->msg[1] |= mask;
+      ip_header_checksum(ip_pkt);
+      // uint8_t mask = 3;
+      // sdu->msg[1] |= mask;
       buf_log->info("[marking] rnti=0x%x, lcid=%u, ip_src=%s, ip_dst=%s, id=%d, tos=0x%x\n", rnti, lcid, srslte::gtpu_ntoa(ip_pkt->saddr).c_str(), srslte::gtpu_ntoa(ip_pkt->daddr).c_str(), ntohs(ip_pkt->id), ip_pkt->tos);
     }
   }
