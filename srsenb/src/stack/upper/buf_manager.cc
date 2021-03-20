@@ -98,6 +98,10 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
   buf_log->info("[update_rlc_buffer_state] Update from RLC rnti=0x%x, lcid=%u, rlc_buffer_size=%u, nof_unread_bytes=%u\n", rnti, lcid, nof_unread_packets, nof_unread_bytes);
   ue_db[rnti].update_rlc_buffer_state(lcid, nof_unread_packets, nof_unread_bytes);
 
+  if (nof_unread_bytes > BEARER_CAPACITY_PKT) {
+    buf_log->warning("[update_rlc_buffer_state] RLC buffer overflow rnti=0x%x, lcid=%u, rlc_buffer_size=%u, nof_unread_bytes=%u\n", rnti, lcid, nof_unread_packets, nof_unread_bytes);
+  }
+  else {
   uint32_t space = BEARER_CAPACITY_PKT - nof_unread_bytes;
   uint32_t pkt_size;
   while (user_first_pkt.count(rnti) && user_first_pkt[rnti].count(lcid) && space >= user_first_pkt[rnti][lcid]->second->N_bytes + 2) {
@@ -116,6 +120,7 @@ void gtpu_buffer_manager::update_buffer_state(uint16_t rnti, uint32_t lcid, uint
   uint32_t bearer_pkts, bearer_bytes;
   ue_db[rnti].get_rlc_buffer_state(lcid, bearer_pkts, bearer_bytes);
   buf_log->info("[update_rlc_buffer_state] After common -> separate rnti=0x%x, lcid=%u, rlc_buffer_size=%u\n", rnti, lcid, bearer_bytes);
+}
   pthread_mutex_unlock(&mutex);
 }
 
