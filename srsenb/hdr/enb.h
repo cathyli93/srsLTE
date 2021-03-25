@@ -98,7 +98,7 @@ struct general_args_t {
 };
 
 struct mi_args_t {
-  std::string mi_supported_msg;
+  std::string mi_msg_types;
   bool        mi_log_enable;
 };
 

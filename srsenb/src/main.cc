@@ -429,7 +429,7 @@ int main(int argc, char* argv[])
   if (args.log.filename == "stdout") {
     logger = &logger_stdout;
   } else {
-    logger_file.init(args.log.filename, args.log.file_max_size, "/tmp/enb_mi.log");
+    logger_file.init(args.log.filename, args.log.file_max_size, "/tmp/enb_mi.log", args.mi_log.mi_msg_types);
     logger = &logger_file;
   }
   srslte::logmap::set_default_logger(logger);
