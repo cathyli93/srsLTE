@@ -137,7 +137,7 @@ public:
     return unique_log_str_t(pool.allocate(), logger::log_str_deleter(&pool));
   }
 
-  bool is_supported_type(MiMessageType t) { return supported_msg_types.find(MiMessageType) != supported_msg_types.end(); }
+  bool is_supported_type(MiMessageType t) { return supported_msg_types.find(t) != supported_msg_types.end(); }
 
 private:
   log_str_pool_t pool;

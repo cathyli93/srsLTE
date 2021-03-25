@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <stdint.h>
 #include <string>
+#include "srslte/common/logger.h" // mi-log
 
 namespace srslte {
 

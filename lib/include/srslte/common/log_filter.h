@@ -32,6 +32,7 @@
 
 #include <stdarg.h>
 #include <string>
+#include <unordered_set>
 
 #include "srslte/common/log.h"
 #include "srslte/common/logger.h"
@@ -64,7 +65,7 @@ public:
   void info_hex(const uint8_t* hex, int size, const char* message, ...) __attribute__((format(printf, 4, 5)));
   void debug_hex(const uint8_t* hex, int size, const char* message, ...) __attribute__((format(printf, 4, 5)));
 
-  void mi_message(MessageType msg_type, uint16_t rnti, const char* message, ...) __attribute__((format(printf, 4, 5)));
+  void mi_message(MiMessageType msg_type, uint16_t rnti, const char* message, ...) __attribute__((format(printf, 4, 5)));
 
   srslte::LOG_LEVEL_ENUM get_level(std::string l);
 
@@ -89,7 +90,7 @@ protected:
 
   logger_stdout def_logger_stdout;
 
-  unordered_set<MessageType>& enabled_msg_types;
+  std::unordered_set<MiMessageType>& enabled_msg_types;
 
   void        all_log(srslte::LOG_LEVEL_ENUM level,
                       uint32_t               tti,
@@ -98,7 +99,7 @@ protected:
                       int                    size     = 0,
                       bool                   long_msg = false);
   
-  void        all_log_mi(MessageType msg_type, uint16_t rnti, const char* msg); // mi-log
+  void        all_log_mi(MiMessageType msg_type, uint16_t rnti, const char* msg); // mi-log
 
   void        now_time(char* buffer, const uint32_t buffer_len);
   void        get_tti_str(const uint32_t tti_, char* buffer, const uint32_t buffer_len);
