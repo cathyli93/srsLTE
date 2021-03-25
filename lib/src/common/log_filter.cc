@@ -224,7 +224,7 @@ void log_filter::debug_hex(const uint8_t* hex, int size, const char* message, ..
 }
 
 // mi-log
-void log_filter::mi_message(MessageType msg_type, uint16_t rnti, const char* message, ...)
+void log_filter::mi_message(MiMessageType msg_type, uint16_t rnti, const char* message, ...)
 {
   if (!logger_h->is_supported_type(msg_type)) {
     return;
@@ -237,7 +237,7 @@ void log_filter::mi_message(MessageType msg_type, uint16_t rnti, const char* mes
   va_end(args);  
 }
 
-void log_filter::all_log_mi(MessageType msg_type, uint16_t rnti, const char* msg)
+void log_filter::all_log_mi(MiMessageType msg_type, uint16_t rnti, const char* msg)
 {
   char buffer_time[64] = {};
   if (logger_h) {
