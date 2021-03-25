@@ -61,6 +61,7 @@ void logger_file::init(std::string file, int max_length_, std::string mi_file, s
     mi_logfile = fopen(mi_filename.c_str(), "w");
     if (mi_logfile == NULL) {
       printf("Error: could not create MI log file, no messages will be logged!\n");
+    }
   }
 
   if (mi_msg_types != "") {
