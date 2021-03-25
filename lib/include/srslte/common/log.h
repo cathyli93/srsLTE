@@ -145,7 +145,7 @@ public:
     error("debug_hex not implemented.\n");
   }
 
-  virtual void mi_message(MessageType msg_type, uint16_t rnti, const char* message, ...) __attribute__((format(printf, 4, 5))) = 0;
+  virtual void mi_message(MiMessageType msg_type, uint16_t rnti, const char* message, ...) __attribute__((format(printf, 4, 5))) = 0;
 
 protected:
   uint32_t       tti;

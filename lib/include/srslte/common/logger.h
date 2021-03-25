@@ -129,7 +129,7 @@ public:
 
   virtual void log(unique_log_str_t msg) = 0;
 
-  virtual void log_mi(unique_log_str_t msg) = 0; //mi-log
+  virtual void log_mi(unique_log_str_t msg) {} //mi-log
 
   log_str_pool_t&  get_pool() { return pool; }
   unique_log_str_t allocate_unique_log_str()
