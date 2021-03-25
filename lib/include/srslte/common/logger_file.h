@@ -53,6 +53,7 @@ public:
   // Implementation of log_out
   void log(unique_log_str_t msg);
   void log_mi(unique_log_str_t msg);
+  bool is_supported_type(MiMessageType t);
 
 private:
   void run_thread();

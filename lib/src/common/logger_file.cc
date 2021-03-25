@@ -56,8 +56,8 @@ void logger_file::init(std::string file, int max_length_, std::string mi_file, s
   }
 
   // mi-log
+  mi_filename = mi_file;
   if (mi_file != "") {
-    mi_filename = mi_file;
     mi_logfile = fopen(mi_filename.c_str(), "w");
     if (mi_logfile == NULL) {
       printf("Error: could not create MI log file, no messages will be logged!\n");
@@ -65,18 +65,19 @@ void logger_file::init(std::string file, int max_length_, std::string mi_file, s
   }
 
   if (mi_msg_types != "") {
+    std::string to_split = mi_msg_types[mi_msg_types.length() - 1] != ',' ? mi_msg_types + "," : mi_msg_types;
     std::string delimiter = ",";
     size_t pos = 0;
     std::string token;
-    while ((pos = mi_msg_types.find(delimiter)) != std::string::npos) {
-      token = mi_msg_types.substr(0, pos);
+    while ((pos = to_split.find(delimiter)) != std::string::npos) {
+      token = to_split.substr(0, pos);
       if (MsgTypeToName.find(token) == MsgTypeToName.end()) {
         printf("Error: unsupported MI message type: %s!\n", token.c_str());
         continue;
       }
       // MiMessageType msg_type = MsgTypeToName[token];
       supported_msg_types.insert(MsgTypeToName.find(token)->second);
-      mi_msg_types.erase(0, pos + delimiter.length());
+      to_split.erase(0, pos + delimiter.length());
     }
   }
 
@@ -185,6 +186,11 @@ void logger_file::flush()
     }
   }
   buffer.clear();
+}
+
+bool logger_file::is_supported_type(MiMessageType t)
+{
+  return mi_filename != "" && supported_msg_types.find(t) != supported_msg_types.end();
 }
 
 } // namespace srslte
