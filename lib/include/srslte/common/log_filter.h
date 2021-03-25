@@ -38,6 +38,7 @@
 #include "srslte/common/logger.h"
 #include "srslte/common/logger_stdout.h"
 #include "srslte/phy/common/timestamp.h"
+#include "srslte/common/logger_const.h" // mi-log
 
 namespace srslte {
 

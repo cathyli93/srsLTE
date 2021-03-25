@@ -28,6 +28,7 @@
 #include <sys/time.h>
 
 #include "srslte/common/log_filter.h"
+#include "srslte/common/logger_const.h" // mi-log
 
 namespace srslte {
 
