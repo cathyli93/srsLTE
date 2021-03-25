@@ -74,7 +74,8 @@ void logger_file::init(std::string file, int max_length_, std::string mi_file, s
         printf("Error: unsupported MI message type: %s!\n", token.c_str());
         continue;
       }
-      supported_msg_types.insert(MsgTypeToName[token]);
+      MiMessageType msg_type = MsgTypeToName[token];
+      supported_msg_types.insert(msg_type);
       mi_msg_types.erase(0, pos + delimiter.length());
     }
   }
