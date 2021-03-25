@@ -37,13 +37,13 @@
 namespace srslte {
 
 enum {
-  LTE_PHY_PUSCH_Decoding_Result = 0xB139;
-  LTE_PHY_PUCCH_Decoding_Result = 0xB13C; 
-  LTE_MAC_DL_Transport_Block    = 0xB063;
+  LTE_PHY_PUSCH_Decoding_Result = 0xB139,
+  LTE_PHY_PUCCH_Decoding_Result = 0xB13C, 
+  LTE_MAC_DL_Transport_Block    = 0xB063,
 
-  LTE_MAC_DL_Stats      = 0xF001;
-  LTE_MAC_UL_Stats      = 0xF002;
-  LTE_GTPU_Buffer_Stats = 0xF003;
+  LTE_MAC_DL_Stats      = 0xF001,
+  LTE_MAC_UL_Stats      = 0xF002,
+  LTE_GTPU_Buffer_Stats = 0xF003,
 } MiMessageType; 
 
   // LTE_RLC_UL_Stats      = 0xB097;
