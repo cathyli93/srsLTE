@@ -27,7 +27,7 @@ using namespace std;
 
 namespace srslte {
 
-logger_file::logger_file() : logfile(NULL), is_running(false), cur_length(0), max_length(0), thread("LOGGER_FILE")
+logger_file::logger_file() : logfile(NULL), is_running(false), cur_length(0), max_length(0), thread("LOGGER_FILE"), mi_logfile(NULL)
 {
   pthread_mutex_init(&mutex, NULL);
   pthread_cond_init(&not_empty, NULL);
@@ -40,7 +40,7 @@ logger_file::~logger_file()
   pthread_cond_destroy(&not_empty);
 }
 
-void logger_file::init(std::string file, int max_length_)
+void logger_file::init(std::string file, int max_length_, std::string mi_file, std::string mi_msg_types)
 {
   if (is_running) {
     fprintf(stderr, "Error: logger thread is already running.\n");
@@ -54,6 +54,30 @@ void logger_file::init(std::string file, int max_length_)
   if (logfile == NULL) {
     printf("Error: could not create log file, no messages will be logged!\n");
   }
+
+  // mi-log
+  if (mi_file != "") {
+    mi_filename = mi_file;
+    mi_logfile = fopen(mi_filename.c_str(), "w");
+    if (mi_logfile == NULL) {
+      printf("Error: could not create MI log file, no messages will be logged!\n");
+  }
+
+  if (mi_msg_types != "") {
+    std::string delimiter = ",";
+    size_t pos = 0;
+    std::string token;
+    while ((pos = mi_msg_types.find(delimiter)) != std::string::npos) {
+      token = mi_msg_types.substr(0, pos);
+      if (MsgTypeToName.find(token) == MsgTypeToName.end()) {
+        printf("Error: unsupported MI message type: %s!\n", token);
+        continue;
+      }
+      supported_msg_types.insert(MsgTypeToName[token]);
+      mi_msg_types.erase(0, pos + delimiter.length());
+    }
+  }
+
   is_running = true;
   start(-2);
   pthread_mutex_unlock(&mutex);
@@ -90,39 +114,60 @@ void logger_file::log(unique_log_str_t msg)
   pthread_mutex_unlock(&mutex);
 }
 
+void logger_file::log_mi(unique_log_str_t msg)
+{
+  pthread_mutex_lock(&mutex);
+  mi_buffer.push_back(std::move(msg));
+  pthread_cond_signal(&not_empty);
+  pthread_mutex_unlock(&mutex);
+}
+
 void logger_file::run_thread()
 {
   while (is_running) {
     pthread_mutex_lock(&mutex);
-    while (buffer.empty()) {
+    while (buffer.empty() && mi_buffer.empty()) {
       pthread_cond_wait(&not_empty, &mutex);
       if (!is_running) {
         pthread_mutex_unlock(&mutex);
         return; // Thread done. Messages in buffer will be handled in flush.
       }
     }
-    unique_log_str_t s = std::move(buffer.front());
 
-    int n = 0;
-    if (logfile) {
-      n = fprintf(logfile, "%s", s->str());
-    }
-    buffer.pop_front();
+    if (!buffer.empty()) {
+      unique_log_str_t s = std::move(buffer.front());
 
-    if (n > 0) {
-      cur_length += (int64_t)n;
-      if (cur_length >= max_length && max_length > 0) {
-        fclose(logfile);
-        name_idx++;
-        char numstr[21]; // enough to hold all numbers up to 64-bits
-        sprintf(numstr, ".%d", name_idx);
-        string newfilename = filename + numstr;
-        logfile            = fopen(newfilename.c_str(), "w");
-        if (logfile == NULL) {
-          printf("Error: could not create log file, no messages will be logged!\n");
-        }
-        cur_length = 0;
+      int n = 0;
+      if (logfile) {
+        n = fprintf(logfile, "%s", s->str());
       }
+      buffer.pop_front();
+
+      if (n > 0) {
+        cur_length += (int64_t)n;
+        if (cur_length >= max_length && max_length > 0) {
+          fclose(logfile);
+          name_idx++;
+          char numstr[21]; // enough to hold all numbers up to 64-bits
+          sprintf(numstr, ".%d", name_idx);
+          string newfilename = filename + numstr;
+          logfile            = fopen(newfilename.c_str(), "w");
+          if (logfile == NULL) {
+            printf("Error: could not create log file, no messages will be logged!\n");
+          }
+          cur_length = 0;
+        }
+      }
+    }
+
+    if (!mi_buffer.empty()) {
+      unique_log_str_t s = std::move(mi_buffer.front());
+
+      int n = 0;
+      if (mi_logfile) {
+        n = fprintf(mi_logfile, "%s", s->str());
+      }
+      mi_buffer.pop_front();
     }
     pthread_mutex_unlock(&mutex);
   }

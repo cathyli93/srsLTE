@@ -31,13 +31,45 @@
 #include <memory>
 #include <stdio.h>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace srslte {
+
+typedef enum {
+  LTE_PHY_PUSCH_Decoding_Result = 0xB139;
+  LTE_PHY_PUCCH_Decoding_Result = 0xB13C; 
+  LTE_MAC_DL_Transport_Block    = 0xB063;
+
+  LTE_MAC_DL_Stats      = 0xF001;
+  LTE_MAC_UL_Stats      = 0xF002;
+  LTE_GTPU_Buffer_Stats = 0xF003;
+} MiMessageType; 
+
+  // LTE_RLC_UL_Stats      = 0xB097;
+  // LTE_RLC_DL_Stats      = 0xB087;
+  // LTE_PDCP_UL_Data_PDU  = 0xB0B3;
+  // LTE_PDCP_DL_Data_PDU  = 0xB0A3;
+
+const unordered_map<std::string, MiMessageType> MsgTypeToName ( {
+  {"LTE_PHY_PUSCH_Decoding_Result", LTE_PHY_PUSCH_Decoding_Result},
+  {"LTE_PHY_PUCCH_Decoding_Result", LTE_PHY_PUCCH_Decoding_Result},
+  {"LTE_MAC_DL_Transport_Block", LTE_MAC_DL_Transport_Block},
+
+  {"LTE_MAC_DL_Stats", LTE_MAC_DL_Stats},
+  {"LTE_MAC_UL_Stats", LTE_MAC_UL_Stats},
+  {"LTE_GTPU_Buffer_Stats", LTE_GTPU_Buffer_Stats},
+  // {"LTE_RLC_UL_Stats", LTE_RLC_UL_Stats},
+  // {"LTE_RLC_DL_Stats", LTE_RLC_DL_Stats},
+  // {"LTE_PDCP_UL_Data_PDU", LTE_PDCP_UL_Data_PDU},
+  // {"LTE_PDCP_DL_Data_PDU", LTE_PDCP_DL_Data_PDU},
+} );
 
 class logger
 {
 public:
   const static uint32_t preallocated_log_str_size = 1024;
+  unordered_set<MiMessageType> supported_msg_types; //mi-log
 
   logger() : pool(16 * 1024) {}
   virtual ~logger() = default;
@@ -97,11 +129,15 @@ public:
 
   virtual void log(unique_log_str_t msg) = 0;
 
+  virtual void log_mi(unique_log_str_t msg) = 0; //mi-log
+
   log_str_pool_t&  get_pool() { return pool; }
   unique_log_str_t allocate_unique_log_str()
   {
     return unique_log_str_t(pool.allocate(), logger::log_str_deleter(&pool));
   }
+
+  bool is_supported_type(MiMessageType t) { return supported_msg_types.find(MiMessageType) != supported_msg_types.end(); }
 
 private:
   log_str_pool_t pool;

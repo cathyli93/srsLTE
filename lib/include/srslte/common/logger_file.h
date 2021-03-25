@@ -35,6 +35,7 @@
 #include <deque>
 #include <stdio.h>
 #include <string>
+#include <unordered_set>
 
 namespace srslte {
 
@@ -46,10 +47,12 @@ public:
   logger_file();
   logger_file(std::string file);
   ~logger_file();
-  void init(std::string file, int max_length = -1);
+  // void init(std::string file, int max_length = -1);
+  void init(std::string file, int max_length = -1, std::string mi_file = "", std::string mi_msg_types = "");
   void stop();
   // Implementation of log_out
   void log(unique_log_str_t msg);
+  void log_mi(unique_log_str_t msg);
 
 private:
   void run_thread();
@@ -63,8 +66,11 @@ private:
   std::string     filename;
   pthread_cond_t  not_empty;
   pthread_mutex_t mutex;
-
   std::deque<unique_log_str_t> buffer;
+
+  FILE*           mi_logfile;
+  std::string     mi_filename;
+  std::deque<unique_log_str_t> mi_buffer;
 };
 
 } // namespace srslte

@@ -222,6 +222,44 @@ void log_filter::debug_hex(const uint8_t* hex, int size, const char* message, ..
   all_log_hex_expand(LOG_LEVEL_DEBUG);
 }
 
+// mi-log
+void log_filter::mi_message(MessageType msg_type, uint16_t rnti, const char* message, ...)
+{
+  if (!logger_h->is_supported_type(msg_type)) {
+    return;
+  }
+  char args_msg[char_buff_size];
+  va_list args;
+  va_start(args, message);
+  if (vsnprintf(args_msg, char_buff_size, message, args) > 0)
+    all_log_mi(msg_type, rnti, args_msg);
+  va_end(args);  
+}
+
+void log_filter::all_log_mi(MessageType msg_type, uint16_t rnti, const char* msg)
+{
+  char buffer_time[64] = {};
+  if (logger_h) {
+    logger::unique_log_str_t log_str = nullptr;
+    log_str = logger_h->allocate_unique_log_str();
+    if (log_str) {
+      now_time(buffer_time, sizeof(buffer_time));
+      snprintf(log_str->str(),
+               log_str->get_buffer_size(),
+               "0x%X %s 0x%x %s%s", // message_type timestamp user msg
+               msg_type,
+               buffer_time,
+               rnti,
+               msg,
+               msg[strlen(msg) - 1] != '\n' ? "\n" : "");
+      logger_h->log_mi(std::move(log_str));
+    } else {
+      logger_h->log_char("Error in Log: Not enough buffers in pool\n");
+    }
+  }
+}
+// mi-log end
+
 void log_filter::set_time_src(time_itf* source, time_format_t format)
 {
   this->time_src    = source;

@@ -97,6 +97,11 @@ struct general_args_t {
   std::string eea_pref_list;
 };
 
+struct mi_args_t {
+  std::string mi_supported_msg;
+  bool        mi_log_enable;
+};
+
 struct all_args_t {
   enb_args_t        enb;
   enb_files_t       enb_files;
@@ -106,6 +111,7 @@ struct all_args_t {
   general_args_t    general;
   phy_args_t        phy;
   stack_args_t      stack;
+  mi_args_t         mi_log;
 };
 
 /*******************************************************************************

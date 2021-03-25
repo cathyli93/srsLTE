@@ -119,6 +119,11 @@ void parse_args(all_args_t* args, int argc, char* argv[])
 
     ("log.filename",      bpo::value<string>(&args->log.filename)->default_value("/tmp/ue.log"),"Log filename")
     ("log.file_max_size", bpo::value<int>(&args->log.file_max_size)->default_value(-1), "Maximum file size (in kilobytes). When passed, multiple files are created. Default -1 (single file)")
+    // ("log.mi_filename",   bpo::value<string>(&args->log.mi_filename)->default_value("/tmp/mi.log"), "MI log filename")
+
+    ("mi_log.mi_log_enable",  bpo::value<bool>(&args->mi_log.mi_log_enable)->default_value(false), "Enable MI log")
+    ("mi_log.mi_msg_types",   bpo::value<string>(&args->mi_log.mi_msg_types)->default_value(""), "Supported MI message types, separated by ,")
+    // ("log.mi_msg_types", bpo::value<std::vector<string> >(&mi_supported_msg)->multitoken(), "Supported MI message types")
 
     /* PCAP */
     ("pcap.enable",    bpo::value<bool>(&args->stack.mac_pcap.enable)->default_value(false),         "Enable MAC packet captures for wireshark")
@@ -424,7 +429,7 @@ int main(int argc, char* argv[])
   if (args.log.filename == "stdout") {
     logger = &logger_stdout;
   } else {
-    logger_file.init(args.log.filename, args.log.file_max_size);
+    logger_file.init(args.log.filename, args.log.file_max_size, "/tmp/enb_mi.log");
     logger = &logger_file;
   }
   srslte::logmap::set_default_logger(logger);

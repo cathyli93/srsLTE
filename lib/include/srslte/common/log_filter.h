@@ -64,6 +64,8 @@ public:
   void info_hex(const uint8_t* hex, int size, const char* message, ...) __attribute__((format(printf, 4, 5)));
   void debug_hex(const uint8_t* hex, int size, const char* message, ...) __attribute__((format(printf, 4, 5)));
 
+  void mi_message(MessageType msg_type, uint16_t rnti, const char* message, ...) __attribute__((format(printf, 4, 5)));
+
   srslte::LOG_LEVEL_ENUM get_level(std::string l);
 
   class time_itf
@@ -87,12 +89,17 @@ protected:
 
   logger_stdout def_logger_stdout;
 
+  unordered_set<MessageType>& enabled_msg_types;
+
   void        all_log(srslte::LOG_LEVEL_ENUM level,
                       uint32_t               tti,
                       const char*            msg,
                       const uint8_t*         hex      = nullptr,
                       int                    size     = 0,
                       bool                   long_msg = false);
+  
+  void        all_log_mi(MessageType msg_type, uint16_t rnti, const char* msg); // mi-log
+
   void        now_time(char* buffer, const uint32_t buffer_len);
   void        get_tti_str(const uint32_t tti_, char* buffer, const uint32_t buffer_len);
   std::string hex_string(const uint8_t* hex, int size);

@@ -30,6 +30,7 @@
 #include "srslte/common/log_helper.h"
 #include "srslte/common/rwlock_guard.h"
 #include "srslte/common/time_prof.h"
+#include "srslte/common/logger.h" // mi-log
 
 //#define WRITE_SIB_PCAP
 using namespace asn1::rrc;
@@ -596,6 +597,9 @@ int mac::get_dl_sched(uint32_t tti_tx_dl, dl_sched_list_t& dl_sched_res_list)
               if (!dl_sched_res->pdsch[n].data[tb]) {
                 Error("Error! PDU was not generated (rnti=0x%04x, tb=%d)\n", rnti, tb);
               }
+
+              // mi-log
+              log_h->mi_message(LTE_MAC_DL_Transport_Block, rnti, "[MAC_DL_PDU] tti_tx_dl=%u, enb_cc_idx=%u, tb=%u, crc=%d\n", tti_tx_dl, enb_cc_idx, sched_result.data[i].tbs[tb], true);
 
               if (pcap) {
                 pcap->write_dl_crnti(
