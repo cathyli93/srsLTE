@@ -198,7 +198,7 @@ void logger_file::flush()
       fprintf(mi_logfile, "%s", s->str());
     }
   }
-  mi_logfile.clear();
+  mi_buffer.clear();
 }
 
 bool logger_file::is_supported_type(MiMessageType t)
