@@ -91,8 +91,6 @@ protected:
 
   logger_stdout def_logger_stdout;
 
-  std::unordered_set<MiMessageType>& enabled_msg_types;
-
   void        all_log(srslte::LOG_LEVEL_ENUM level,
                       uint32_t               tti,
                       const char*            msg,
