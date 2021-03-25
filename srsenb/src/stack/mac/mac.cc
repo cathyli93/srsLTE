@@ -599,7 +599,7 @@ int mac::get_dl_sched(uint32_t tti_tx_dl, dl_sched_list_t& dl_sched_res_list)
               }
 
               // mi-log
-              log_h->mi_message(LTE_MAC_DL_Transport_Block, rnti, "[MAC_DL_PDU] tti_tx_dl=%u, enb_cc_idx=%u, tb=%u, crc=%d\n", tti_tx_dl, enb_cc_idx, sched_result.data[i].tbs[tb], true);
+              log_h->mi_message(srslte::LTE_MAC_DL_Transport_Block, rnti, "[MAC_DL_PDU] tti_tx_dl=%u, enb_cc_idx=%u, tb=%u, crc=%d\n", tti_tx_dl, enb_cc_idx, sched_result.data[i].tbs[tb], true);
 
               if (pcap) {
                 pcap->write_dl_crnti(
