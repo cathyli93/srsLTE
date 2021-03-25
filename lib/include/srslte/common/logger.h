@@ -37,13 +37,13 @@
 namespace srslte {
 
 typedef enum {
-  LTE_PHY_PUSCH_Decoding_Result = 0xB139;
-  LTE_PHY_PUCCH_Decoding_Result = 0xB13C; 
-  LTE_MAC_DL_Transport_Block    = 0xB063;
+  LTE_PHY_PUSCH_Decoding_Result = 0xB139,
+  LTE_PHY_PUCCH_Decoding_Result = 0xB13C,
+  LTE_MAC_DL_Transport_Block    = 0xB063,
 
-  LTE_MAC_DL_Stats      = 0xF001;
-  LTE_MAC_UL_Stats      = 0xF002;
-  LTE_GTPU_Buffer_Stats = 0xF003;
+  LTE_MAC_DL_Stats      = 0xF001,
+  LTE_MAC_UL_Stats      = 0xF002,
+  LTE_GTPU_Buffer_Stats = 0xF003,
 } MiMessageType; 
 
   // LTE_RLC_UL_Stats      = 0xB097;
@@ -51,7 +51,7 @@ typedef enum {
   // LTE_PDCP_UL_Data_PDU  = 0xB0B3;
   // LTE_PDCP_DL_Data_PDU  = 0xB0A3;
 
-const unordered_map<std::string, MiMessageType> MsgTypeToName ( {
+const std::unordered_map<std::string, MiMessageType> MsgTypeToName ( {
   {"LTE_PHY_PUSCH_Decoding_Result", LTE_PHY_PUSCH_Decoding_Result},
   {"LTE_PHY_PUCCH_Decoding_Result", LTE_PHY_PUCCH_Decoding_Result},
   {"LTE_MAC_DL_Transport_Block", LTE_MAC_DL_Transport_Block},
@@ -69,7 +69,7 @@ class logger
 {
 public:
   const static uint32_t preallocated_log_str_size = 1024;
-  unordered_set<MiMessageType> supported_msg_types; //mi-log
+  std::unordered_set<MiMessageType> supported_msg_types; //mi-log
 
   logger() : pool(16 * 1024) {}
   virtual ~logger() = default;
