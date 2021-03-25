@@ -30,7 +30,7 @@
 #include "srslte/common/log_helper.h"
 #include "srslte/common/rwlock_guard.h"
 #include "srslte/common/time_prof.h"
-#include "srslte/common/logger.h" // mi-log
+#include "srslte/common/logger_const.h" // mi-log
 
 //#define WRITE_SIB_PCAP
 using namespace asn1::rrc;
