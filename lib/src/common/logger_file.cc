@@ -101,6 +101,11 @@ void logger_file::stop()
       fclose(logfile);
       logfile = NULL;
     }
+    // mi-log
+    if (mi_logfile) {
+      fclose(mi_logfile);
+      mi_logfile = NULL;
+    } // mi-log end
     pthread_mutex_unlock(&mutex);
   } else {
     pthread_mutex_lock(&mutex);
@@ -186,6 +191,14 @@ void logger_file::flush()
     }
   }
   buffer.clear();
+
+  for (it = mi_buffer.begin(); it != mi_buffer.end(); it++) {
+    unique_log_str_t s = std::move(*it);
+    if (mi_logfile) {
+      fprintf(mi_logfile, "%s", s->str());
+    }
+  }
+  mi_logfile.clear();
 }
 
 bool logger_file::is_supported_type(MiMessageType t)
