@@ -246,8 +246,8 @@ void gtpu_buffer_manager::push_sdu_(uint16_t rnti, uint32_t lcid, srslte::unique
       uint8_t mask = 3;
       sdu->msg[1] |= mask;
       uint16_t oldcheck = ip_pkt->check;
-      ip_pkt->check = ip_header_checksum(ip_pkt);
-      buf_log->info("[marking] rnti=0x%x, lcid=%u, ip_src=%s, ip_dst=%s, id=%d, tos=0x%x, new_check=%x, old_check=%x\n", rnti, lcid, srslte::gtpu_ntoa(ip_pkt->saddr).c_str(), srslte::gtpu_ntoa(ip_pkt->daddr).c_str(), ntohs(ip_pkt->id), ip_pkt->tos, ip_pkt->check, oldcheck);
+      uint16_t checksum = ip_header_checksum(ip_pkt);
+      buf_log->info("[marking] rnti=0x%x, lcid=%u, ip_src=%s, ip_dst=%s, id=%d, tos=0x%x, new_check=%x, old_check=%x\n", rnti, lcid, srslte::gtpu_ntoa(ip_pkt->saddr).c_str(), srslte::gtpu_ntoa(ip_pkt->daddr).c_str(), ntohs(ip_pkt->id), ip_pkt->tos, checksum, oldcheck);
     }
   }
   // qr-ecn end
