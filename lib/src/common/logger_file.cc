@@ -70,7 +70,7 @@ void logger_file::init(std::string file, int max_length_, std::string mi_file, s
     while ((pos = mi_msg_types.find(delimiter)) != std::string::npos) {
       token = mi_msg_types.substr(0, pos);
       if (MsgTypeToName.find(token) == MsgTypeToName.end()) {
-        printf("Error: unsupported MI message type: %s!\n", token);
+        printf("Error: unsupported MI message type: %s!\n", token.c_str());
         continue;
       }
       supported_msg_types.insert(MsgTypeToName[token]);
