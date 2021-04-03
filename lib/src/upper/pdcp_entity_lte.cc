@@ -143,7 +143,7 @@ void pdcp_entity_lte::write_sdu(unique_byte_buffer_t sdu, bool blocking)
     log->info_hex(sdu->msg, sdu->N_bytes, "TX %s SDU (encrypted)", rrc->get_rb_name(lcid).c_str());
   }
 
-  log->mi_message(srslte::LTE_PDCP_DL_Data_PDU, rnti, "[LTE_PDCP_DL_Data_PDU] tti=%u, lcid=%u, SN=%d, length=%u\n", parent_pdcp->get_tti(), lcid, tx_count, sdu->N_bytes); // mi-debug
+  log->mi_message(srslte::LTE_PDCP_DL_Data_PDU, parent_pdcp->get_rnti(), "[LTE_PDCP_DL_Data_PDU] tti=%u, lcid=%u, SN=%d, length=%u\n", parent_pdcp->get_tti(), lcid, tx_count, sdu->N_bytes); // mi-debug
 
   tx_count++;
 
@@ -178,7 +178,7 @@ void pdcp_entity_lte::write_pdu(unique_byte_buffer_t pdu)
                 srslte_direction_text[integrity_direction],
                 srslte_direction_text[encryption_direction]);
 
-  log->mi_message(srslte::LTE_PDCP_UL_Data_PDU, rnti, "[LTE_PDCP_UL_Data_PDU] tti=%u, lcid=%u, SN=%d, length=%u\n", parent_pdcp->get_tti(), lcid, sn, pdu->N_bytes); // mi-debug
+  log->mi_message(srslte::LTE_PDCP_UL_Data_PDU, parent_pdcp->get_rnti(), "[LTE_PDCP_UL_Data_PDU] tti=%u, lcid=%u, SN=%d, length=%u\n", parent_pdcp->get_tti(), lcid, sn, pdu->N_bytes); // mi-debug
 
   if (is_srb()) {
     handle_srb_pdu(std::move(pdu));
