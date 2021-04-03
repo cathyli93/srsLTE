@@ -29,7 +29,8 @@ void rlc::init(pdcp_interface_rlc*    pdcp_,
                mac_interface_rlc*     mac_,
                srslte::timer_handler* timers_,
                srslte::log_ref        log_h_,
-               buffer_interface_rlc* gtpu_buf_) //qr-buf
+               buffer_interface_rlc* gtpu_buf_,
+               phy_interface_stack_lte*  phy_) //qr-buf
 {
   pdcp   = pdcp_;
   rrc    = rrc_;
@@ -37,6 +38,7 @@ void rlc::init(pdcp_interface_rlc*    pdcp_,
   mac    = mac_;
   timers = timers_;
   gtpu_buf = gtpu_buf_; //qr-buf
+  phy   = phy_; //mi-debug
 
   pool = srslte::byte_buffer_pool::get_instance();
 
@@ -59,7 +61,8 @@ void rlc::add_user(uint16_t rnti)
   pthread_rwlock_rdlock(&rwlock);
   if (users.count(rnti) == 0) {
     std::unique_ptr<srslte::rlc> obj(new srslte::rlc(log_h->get_service_name().c_str()));
-    obj->init(&users[rnti], &users[rnti], timers, RB_ID_SRB0);
+    // obj->init(&users[rnti], &users[rnti], timers, RB_ID_SRB0);
+    obj->init(&users[rnti], &users[rnti], timers, RB_ID_SRB0, this, rnti); // mi-debug
     users[rnti].rnti   = rnti;
     users[rnti].pdcp   = pdcp;
     users[rnti].rrc    = rrc;

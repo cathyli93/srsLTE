@@ -53,7 +53,7 @@ void pdcp::add_user(uint16_t rnti)
   if (users.count(rnti) == 0) {
     srslte::pdcp* obj = new srslte::pdcp(task_executor, log_h->get_service_name().c_str());
     // obj->init(&users[rnti].rlc_itf, &users[rnti].rrc_itf, &users[rnti].gtpu_itf);
-    obj->init(&users[rnti].rlc_itf, &users[rnti].rrc_itf, &users[rnti].gtpu_itf, this); //qr-debug
+    obj->init(&users[rnti].rlc_itf, &users[rnti].rrc_itf, &users[rnti].gtpu_itf, this, rnti); //qr-debug
     users[rnti].rlc_itf.rnti  = rnti;
     users[rnti].gtpu_itf.rnti = rnti;
     users[rnti].rrc_itf.rnti  = rnti;

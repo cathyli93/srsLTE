@@ -36,7 +36,7 @@ typedef struct {
 
 namespace srsenb {
 
-class rlc : public rlc_interface_mac, public rlc_interface_rrc, public rlc_interface_pdcp
+class rlc : public rlc_interface_mac, public rlc_interface_rrc, public rlc_interface_pdcp, public rlc_interface_mi
 {
 public:
   void init(pdcp_interface_rlc*    pdcp_,
@@ -44,7 +44,8 @@ public:
             mac_interface_rlc*     mac_,
             srslte::timer_handler* timers_,
             srslte::log_ref        log_h,
-            buffer_interface_rlc*  gtpu_buf_);
+            buffer_interface_rlc*  gtpu_buf_,
+            phy_interface_stack_lte*  phy_ = nullptr);
   void stop();
 
   // rlc_interface_rrc
@@ -67,6 +68,8 @@ public:
   int  read_pdu(uint16_t rnti, uint32_t lcid, uint8_t* payload, uint32_t nof_bytes);
   void write_pdu(uint16_t rnti, uint32_t lcid, uint8_t* payload, uint32_t nof_bytes);
   void read_pdu_pcch(uint8_t* payload, uint32_t buffer_size);
+
+  uint32_t get_tti() { return phy == nullptr ? 0 : phy->get_tti(); } //mi-debug
 
 private:
   class user_interface : public srsue::pdcp_interface_rlc, public srsue::rrc_interface_rlc
@@ -99,6 +102,8 @@ private:
   srslte::log_ref           log_h;
   srslte::byte_buffer_pool* pool;
   srslte::timer_handler*    timers;
+
+  phy_interface_stack_lte*  phy;
 };
 
 } // namespace srsenb

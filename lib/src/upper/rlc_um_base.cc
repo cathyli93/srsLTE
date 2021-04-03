@@ -203,6 +203,7 @@ rlc_um_base::rlc_um_base_rx::rlc_um_base_rx(rlc_um_base* parent_) :
   metrics(parent_->metrics),
   lcid(parent_->lcid)
 {
+  parent = parent_;
 }
 
 rlc_um_base::rlc_um_base_rx::~rlc_um_base_rx() {}
@@ -211,7 +212,9 @@ rlc_um_base::rlc_um_base_rx::~rlc_um_base_rx() {}
  * Tx subclass implementation (base)
  ***************************************************************************/
 
-rlc_um_base::rlc_um_base_tx::rlc_um_base_tx(rlc_um_base* parent_) : log(parent_->log), pool(parent_->pool) {}
+rlc_um_base::rlc_um_base_tx::rlc_um_base_tx(rlc_um_base* parent_) : log(parent_->log), pool(parent_->pool) {
+  parent = parent_;
+}
 
 rlc_um_base::rlc_um_base_tx::~rlc_um_base_tx() {}
 

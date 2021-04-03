@@ -204,6 +204,8 @@ typedef struct {
   rlc_status_nack_t nacks[RLC_AM_WINDOW_SIZE];
 } rlc_am_nr_status_pdu_t;
 
+class rlc; // mi-debug
+
 /****************************************************************************
  * RLC Common interface
  * Common interface for all RLC entities
@@ -291,6 +293,9 @@ public:
   // virtual uint32_t pop_unread_sdu() = 0;
   /* qr-buf end */
 
+  void set_rlc_parent(srslte::rlc* rlc_) { parent_rlc = rlc_; } // mi-debug
+  srslte::rlc* get_rlc_parent() { return parent_rlc; } // mi-debug
+
 private:
   bool suspended = false;
 
@@ -326,6 +331,8 @@ private:
 
   block_queue<pdu_t>                rx_pdu_resume_queue;
   block_queue<unique_byte_buffer_t> tx_sdu_resume_queue{256};
+
+  srslte::rlc*  parent_rlc = nullptr;
 };
 
 } // namespace srslte

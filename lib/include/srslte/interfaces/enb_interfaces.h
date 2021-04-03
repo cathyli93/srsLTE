@@ -353,14 +353,11 @@ public:
   virtual bool resume_bearer(uint16_t rnti, uint32_t lcid)                               = 0;
 };
 
-// RLC interface for GTPU buffer
-// class rlc_interface_buffer
-// {
-// public:
-//   /* gtpu_buffer_manager calls RLC to pop packet for a specific user/lch. */
-//   virtual void pop_unread_sdu(uint16_t rnti, uint32_t lcid) = 0;
-//   virtual void pop_unread_sdu_user(uint16_t rnti) = 0;
-// };
+// mi-debug
+class rlc_interface_mi
+{
+  virtual uint32_t get_tti() = 0;
+};
 
 // PDCP interface for GTPU
 class pdcp_interface_gtpu

@@ -58,12 +58,17 @@ rlc::~rlc()
 void rlc::init(srsue::pdcp_interface_rlc* pdcp_,
                srsue::rrc_interface_rlc*  rrc_,
                srslte::timer_handler*     timers_,
-               uint32_t                   lcid_)
+               uint32_t                   lcid_,
+               srsenb::rlc_interface_mi*  rlc_,
+               uint16_t  rnti_)
 {
   pdcp         = pdcp_;
   rrc          = rrc_;
   timers       = timers_;
   default_lcid = lcid_;
+
+  parent_rlc  = rlc_; //mi-debug
+  rnti = rnti_; //mi-debug
 
   gettimeofday(&metrics_time[1], NULL);
   reset_metrics();
@@ -407,6 +412,7 @@ void rlc::add_bearer(uint32_t lcid, const rlc_config_t& cnfg)
           rlc_log->error("Cannot add RLC entity - invalid mode\n");
           return;
       }
+      rlc_entity->set_rlc_parent(this); //mi-debug
 #ifdef HAVE_5GNR
     } else if (cnfg.rat == srslte_rat_t::nr) {
       switch (cnfg.rlc_mode) {

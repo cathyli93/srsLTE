@@ -28,6 +28,7 @@
 #include "srslte/interfaces/ue_interfaces.h"
 #include "srslte/upper/rlc_common.h"
 #include "srslte/upper/rlc_metrics.h"
+#include "srslte/interfaces/enb_interfaces.h" // mi-debug
 
 namespace srslte {
 
@@ -45,7 +46,9 @@ public:
   void init(srsue::pdcp_interface_rlc* pdcp_,
             srsue::rrc_interface_rlc*  rrc_,
             srslte::timer_handler*     timers_,
-            uint32_t                   lcid_);
+            uint32_t                   lcid_,
+            srsenb::rlc_interface_mi*  rlc_ = nullptr,
+            uint16_t  rnti_ = 0);
   void stop();
 
   void get_metrics(rlc_metrics_t& m);
@@ -90,6 +93,9 @@ public:
   // uint32_t pop_unread_sdu(); 
   /* qr-buf end */
 
+  uint16_t get_rnti() { return rnti; } // mi-debug
+  uint32_t get_tti() { return parent_rlc->get_tti(); } //mi-debug
+
 private:
   void reset_metrics();
 
@@ -98,6 +104,9 @@ private:
   srsue::pdcp_interface_rlc* pdcp   = nullptr;
   srsue::rrc_interface_rlc*  rrc    = nullptr;
   srslte::timer_handler*     timers = nullptr;
+
+  srsenb::rlc_interface_mi*  parent_rlc = nullptr; //mi-debug
+  uint16_t rnti; // mi-debug
 
   typedef std::map<uint16_t, rlc_common*>  rlc_map_t;
   typedef std::pair<uint16_t, rlc_common*> rlc_map_pair_t;

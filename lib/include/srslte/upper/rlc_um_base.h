@@ -92,6 +92,7 @@ protected:
     byte_buffer_pool* pool = nullptr;
     srslte::log_ref   log;
     std::string       rb_name;
+    rlc_um_base*      parent = nullptr; // mi-debug
 
     rlc_config_t cfg = {};
 
@@ -128,6 +129,8 @@ protected:
     srslte::timer_handler*     timers = nullptr;
     srsue::pdcp_interface_rlc* pdcp   = nullptr;
     srsue::rrc_interface_rlc*  rrc    = nullptr;
+
+    rlc_um_base*      parent = nullptr; // mi-debug
 
     rlc_bearer_metrics_t& metrics;
 
