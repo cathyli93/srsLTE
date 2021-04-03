@@ -145,7 +145,7 @@ void pdcp_entity_lte::write_sdu(unique_byte_buffer_t sdu, bool blocking)
   }
 
   log->mi_message(srslte::LTE_PDCP_DL_Data_PDU, parent_pdcp->get_rnti(), "[LTE_PDCP_DL_Data_PDU] tti=%u, lcid=%u, SN=%d, length=%u\n", parent_pdcp->get_tti(), lcid, tx_count, sdu->N_bytes); // mi-debug
-  log->info("[LTE_PDCP_DL_Data_PDU] type=0x%x, rnti=0x%x, tti=%u, lcid=%u, SN=%d, length=%u\n", srslte::LTE_PDCP_DL_Data_PDU, parent_pdcp->get_rnti(), parent_pdcp->get_tti(), lcid, sn, pdu->N_bytes); // mi-debug
+  log->info("[LTE_PDCP_DL_Data_PDU] type=0x%x, rnti=0x%x, tti=%u, lcid=%u, SN=%d, length=%u\n", srslte::LTE_PDCP_DL_Data_PDU, parent_pdcp->get_rnti(), parent_pdcp->get_tti(), lcid, tx_count, sdu->N_bytes); // mi-debug
 
   tx_count++;
 
@@ -182,7 +182,7 @@ void pdcp_entity_lte::write_pdu(unique_byte_buffer_t pdu)
 
   log->mi_message(srslte::LTE_PDCP_UL_Data_PDU, parent_pdcp->get_rnti(), "[LTE_PDCP_UL_Data_PDU] tti=%u, lcid=%u, SN=%d, length=%u\n", parent_pdcp->get_tti(), lcid, sn, pdu->N_bytes); // mi-debug
 
-  log->info("[LTE_PDCP_UL_Data_PDU] type=0x%x, rnti=0x%x, tti=%u, lcid=%u, SN=%d, length=%u\n", srslte::LTE_PDCP_UL_Data_PD, parent_pdcp->get_rnti(), parent_pdcp->get_tti(), lcid, sn, pdu->N_bytes); // mi-debug
+  log->info("[LTE_PDCP_UL_Data_PDU] type=0x%x, rnti=0x%x, tti=%u, lcid=%u, SN=%d, length=%u\n", srslte::LTE_PDCP_UL_Data_PDU, parent_pdcp->get_rnti(), parent_pdcp->get_tti(), lcid, sn, pdu->N_bytes); // mi-debug
 
   if (is_srb()) {
     handle_srb_pdu(std::move(pdu));
