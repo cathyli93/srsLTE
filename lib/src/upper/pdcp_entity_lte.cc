@@ -21,6 +21,7 @@
 
 #include "srslte/upper/pdcp_entity_lte.h"
 #include "srslte/common/security.h"
+#include "srslte/upper/pdcp.h" // mi-debug
 
 namespace srslte {
 
@@ -41,7 +42,8 @@ pdcp_entity_lte::~pdcp_entity_lte()
   reset();
 }
 
-void pdcp_entity_lte::init(uint32_t lcid_, pdcp_config_t cfg_)
+// void pdcp_entity_lte::init(uint32_t lcid_, pdcp_config_t cfg_)
+void pdcp_entity_lte::init(uint32_t lcid_, pdcp_config_t cfg_, srslte::pdcp* pdcp_) //mi-debug
 {
   lcid                 = lcid_;
   cfg                  = cfg_;
@@ -49,6 +51,9 @@ void pdcp_entity_lte::init(uint32_t lcid_, pdcp_config_t cfg_)
   tx_count             = 0;
   integrity_direction  = DIRECTION_NONE;
   encryption_direction = DIRECTION_NONE;
+
+  parent_pdcp = pdcp_; // mi-debug
+  // rnti = rnti_; //mi-debug
 
   if (is_srb()) {
     reordering_window = 0;
@@ -137,6 +142,9 @@ void pdcp_entity_lte::write_sdu(unique_byte_buffer_t sdu, bool blocking)
         &sdu->msg[cfg.hdr_len_bytes], sdu->N_bytes - cfg.hdr_len_bytes, tx_count, &sdu->msg[cfg.hdr_len_bytes]);
     log->info_hex(sdu->msg, sdu->N_bytes, "TX %s SDU (encrypted)", rrc->get_rb_name(lcid).c_str());
   }
+
+  log->mi_message(srslte::LTE_PDCP_DL_Data_PDU, rnti, "[LTE_PDCP_DL_Data_PDU] tti=%u, lcid=%u, SN=%d, length=%u\n", parent_pdcp->get_tti(), lcid, tx_count, sdu->N_bytes); // mi-debug
+
   tx_count++;
 
   rlc->write_sdu(lcid, std::move(sdu), blocking);
@@ -169,6 +177,8 @@ void pdcp_entity_lte::write_pdu(unique_byte_buffer_t pdu)
                 pdu->N_bytes,
                 srslte_direction_text[integrity_direction],
                 srslte_direction_text[encryption_direction]);
+
+  log->mi_message(srslte::LTE_PDCP_UL_Data_PDU, rnti, "[LTE_PDCP_UL_Data_PDU] tti=%u, lcid=%u, SN=%d, length=%u\n", parent_pdcp->get_tti(), lcid, sn, pdu->N_bytes); // mi-debug
 
   if (is_srb()) {
     handle_srb_pdu(std::move(pdu));

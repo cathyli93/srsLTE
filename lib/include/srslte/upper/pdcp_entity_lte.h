@@ -43,6 +43,8 @@ namespace srslte {
  * LTE PDCP Entity
  * Class for LTE PDCP entities
  ***************************************************************************/
+class pdcp;
+
 class pdcp_entity_lte final : public pdcp_entity_base
 {
 public:
@@ -52,7 +54,8 @@ public:
                   srslte::task_handler_interface* task_executor_,
                   srslte::log_ref                 log_);
   ~pdcp_entity_lte();
-  void init(uint32_t lcid_, pdcp_config_t cfg_);
+  // void init(uint32_t lcid_, pdcp_config_t cfg_);
+  void init(uint32_t lcid_, pdcp_config_t cfg_, srslte::pdcp* pdcp_=nullptr);
   void reset();
   void reestablish();
 
@@ -79,6 +82,8 @@ private:
   srsue::rlc_interface_pdcp* rlc = nullptr;
   srsue::rrc_interface_pdcp* rrc = nullptr;
   srsue::gw_interface_pdcp*  gw  = nullptr;
+
+  srslte::pdcp* parent_pdcp = nullptr;
 
   uint32_t tx_count = 0;
 

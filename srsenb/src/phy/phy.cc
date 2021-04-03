@@ -288,4 +288,11 @@ void phy::start_plot()
   workers[0].start_plot();
 }
 
+// mi-debug
+uint32_t phy::get_tti()
+{
+  return tx_rx.get_tti();
+}
+// mi-debug end
+
 } // namespace srsenb

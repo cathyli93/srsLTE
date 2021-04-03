@@ -393,6 +393,13 @@ public:
   virtual void write_pdu(uint16_t rnti, uint32_t lcid, srslte::unique_byte_buffer_t sdu) = 0;
 };
 
+// mi-debug
+class pdcp_interface_mi
+{
+public:
+  virtual uint32_t get_tti() = 0;
+}
+
 // RRC interface for RLC
 class rrc_interface_rlc
 {
@@ -545,8 +552,16 @@ public:
   virtual void tti_clock() = 0;
 };
 
+// mi-debug
+class phy_interface_layer2
+{
+public:
+  virtual uint32_t get_tti() = 0;
+};
+// mi-debug end
+
 // Combined interface for stack (MAC and RRC) to access PHY
-class phy_interface_stack_lte : public phy_interface_mac_lte, public phy_interface_rrc_lte
+class phy_interface_stack_lte : public phy_interface_mac_lte, public phy_interface_rrc_lte, public phy_interface_layer2 //mi-debug
 {};
 
 typedef struct {

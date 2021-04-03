@@ -26,6 +26,7 @@
 #include "srslte/common/log.h"
 #include "srslte/interfaces/ue_interfaces.h"
 #include "srslte/upper/pdcp_entity_lte.h"
+#include "srslte/interfaces/enb_interfaces.h" // mi-debug
 
 namespace srslte {
 
@@ -34,7 +35,8 @@ class pdcp : public srsue::pdcp_interface_rlc, public srsue::pdcp_interface_rrc
 public:
   pdcp(srslte::task_handler_interface* task_executor_, const char* logname);
   virtual ~pdcp();
-  void init(srsue::rlc_interface_pdcp* rlc_, srsue::rrc_interface_pdcp* rrc_, srsue::gw_interface_pdcp* gw_);
+  // void init(srsue::rlc_interface_pdcp* rlc_, srsue::rrc_interface_pdcp* rrc_, srsue::gw_interface_pdcp* gw_);
+  void init(srsue::rlc_interface_pdcp* rlc_, srsue::rrc_interface_pdcp* rrc_, srsue::gw_interface_pdcp* gw_, srsenb::pdcp_interface_mi* pdcp_ = nullptr, uint16_t rnti_ = 0); // mi-debug
   void stop();
 
   // GW interface
@@ -64,12 +66,18 @@ public:
   void write_pdu_bcch_dlsch(unique_byte_buffer_t sdu);
   void write_pdu_pcch(unique_byte_buffer_t sdu);
 
+  uint16_t get_rnti() { return rnti; } // mi-debug
+  uint32_t get_tti() { return parent_pdcp->get_tti(); } // mi-debug
+
 private:
   srsue::rlc_interface_pdcp*      rlc           = nullptr;
   srsue::rrc_interface_pdcp*      rrc           = nullptr;
   srsue::gw_interface_pdcp*       gw            = nullptr;
   srslte::task_handler_interface* task_executor = nullptr;
   srslte::log_ref                 pdcp_log;
+
+  uint16_t rnti = 0; // mi-debug
+  srsenb::pdcp_interface_mi*  parent_pdcp = nullptr; // mi-debug
 
   std::map<uint16_t, std::unique_ptr<pdcp_entity_lte> > pdcp_array, pdcp_array_mrb;
 

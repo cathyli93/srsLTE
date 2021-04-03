@@ -45,6 +45,8 @@ public:
             uint32_t                     prio);
   void stop();
 
+  uint32_t get_tti() { return tti; } // mi-debug
+
 private:
   void run_thread() override;
 

@@ -40,11 +40,14 @@ pdcp::~pdcp()
   pdcp_array_mrb.clear();
 }
 
-void pdcp::init(srsue::rlc_interface_pdcp* rlc_, srsue::rrc_interface_pdcp* rrc_, srsue::gw_interface_pdcp* gw_)
+// void pdcp::init(srsue::rlc_interface_pdcp* rlc_, srsue::rrc_interface_pdcp* rrc_, srsue::gw_interface_pdcp* gw_)
+void pdcp::init(srsue::rlc_interface_pdcp* rlc_, srsue::rrc_interface_pdcp* rrc_, srsue::gw_interface_pdcp* gw_, srsenb::pdcp_interface_mi* pdcp_, uint16_t rnti_) // mi-debug
 {
   rlc = rlc_;
   rrc = rrc_;
   gw  = gw_;
+  parent_pdcp = pdcp_;
+  rnti = rnti_;
 }
 
 void pdcp::stop() {}
@@ -110,7 +113,8 @@ void pdcp::add_bearer(uint32_t lcid, pdcp_config_t cfg)
       pdcp_log->error("Error inserting PDCP entity in to array\n.");
       return;
     }
-    pdcp_array.at(lcid)->init(lcid, cfg);
+    // pdcp_array.at(lcid)->init(lcid, cfg);
+    pdcp_array.at(lcid)->init(lcid, cfg, this); // mi-debug
     pdcp_log->info("Add %s (lcid=%d, bearer_id=%d, sn_len=%dbits)\n",
                    rrc->get_rb_name(lcid).c_str(),
                    lcid,

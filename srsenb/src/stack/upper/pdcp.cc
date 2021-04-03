@@ -31,11 +31,13 @@ pdcp::pdcp(srslte::task_handler_interface* task_executor_, const char* logname) 
 {
 }
 
-void pdcp::init(rlc_interface_pdcp* rlc_, rrc_interface_pdcp* rrc_, gtpu_interface_pdcp* gtpu_)
+void pdcp::init(rlc_interface_pdcp* rlc_, rrc_interface_pdcp* rrc_, gtpu_interface_pdcp* gtpu_, phy_interface_stack_lte* phy_) // mi-debug
 {
   rlc  = rlc_;
   rrc  = rrc_;
   gtpu = gtpu_;
+  
+  phy  = phy_;//mi-debug
 }
 
 void pdcp::stop()
@@ -50,7 +52,8 @@ void pdcp::add_user(uint16_t rnti)
 {
   if (users.count(rnti) == 0) {
     srslte::pdcp* obj = new srslte::pdcp(task_executor, log_h->get_service_name().c_str());
-    obj->init(&users[rnti].rlc_itf, &users[rnti].rrc_itf, &users[rnti].gtpu_itf);
+    // obj->init(&users[rnti].rlc_itf, &users[rnti].rrc_itf, &users[rnti].gtpu_itf);
+    obj->init(&users[rnti].rlc_itf, &users[rnti].rrc_itf, &users[rnti].gtpu_itf, this); //qr-debug
     users[rnti].rlc_itf.rnti  = rnti;
     users[rnti].gtpu_itf.rnti = rnti;
     users[rnti].rrc_itf.rnti  = rnti;
@@ -190,4 +193,9 @@ std::string pdcp::user_interface_rrc::get_rb_name(uint32_t lcid)
   return std::string(rb_id_text[lcid]);
 }
 
+// mi-debug
+uint32_t pdcp::get_tti() 
+{ 
+  return phy == nullptr ? 0 : phy->get_tti(); 
+}
 } // namespace srsenb

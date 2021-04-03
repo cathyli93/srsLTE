@@ -35,7 +35,7 @@ class pdcp : public pdcp_interface_rlc, public pdcp_interface_gtpu, public pdcp_
 public:
   pdcp(srslte::task_handler_interface* task_executor_, const char* logname);
   virtual ~pdcp() {}
-  void init(rlc_interface_pdcp* rlc_, rrc_interface_pdcp* rrc_, gtpu_interface_pdcp* gtpu_);
+  void init(rlc_interface_pdcp* rlc_, rrc_interface_pdcp* rrc_, gtpu_interface_pdcp* gtpu_, phy_interface_stack_lte* phy_ = nullptr); // mi-debug
   void stop();
 
   // pdcp_interface_rlc
@@ -53,6 +53,7 @@ public:
   void enable_encryption(uint16_t rnti, uint32_t lcid) override;
   bool get_bearer_status(uint16_t rnti, uint32_t lcid, uint16_t* dlsn, uint16_t* dlhfn, uint16_t* ulsn, uint16_t* ulhfn)
       override;
+  uint32_t get_tti() override; { return phy == nullptr ? 0 : phy->get_tti(); } // mi-debug
 
 private:
   class user_interface_rlc : public srsue::rlc_interface_pdcp
@@ -109,6 +110,8 @@ private:
   srslte::task_handler_interface* task_executor;
   srslte::log_ref                 log_h;
   srslte::byte_buffer_pool*       pool;
+
+  srsenb::phy_interface_stack_lte*   phy = nullptr; //mi-debug
 };
 
 } // namespace srsenb

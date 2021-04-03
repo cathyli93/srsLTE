@@ -71,6 +71,8 @@ public:
   void radio_overflow() override{};
   void radio_failure() override{};
 
+  uint32_t get_tti() override; //mi-debug
+
 private:
   phy_rrc_cfg_t phy_rrc_config = {};
   uint32_t      nof_workers    = 0;
@@ -92,6 +94,8 @@ private:
   phy_common             workers_common;
   prach_worker_pool      prach;
   txrx                   tx_rx;
+
+  uint32_t tti_rx = 0; // mi-debug
 
   bool initialized = false;
 
