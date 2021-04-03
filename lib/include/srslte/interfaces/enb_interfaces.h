@@ -356,6 +356,7 @@ public:
 // mi-debug
 class rlc_interface_mi
 {
+public:
   virtual uint32_t get_tti() = 0;
 };
 
