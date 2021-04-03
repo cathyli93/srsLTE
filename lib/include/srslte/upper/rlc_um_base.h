@@ -68,6 +68,8 @@ public:
   rlc_bearer_metrics_t get_metrics();
   void                 reset_metrics();
 
+  uint32_t get_lcid() { return lcid; }
+
 protected:
   // Transmitter sub-class base
   class rlc_um_base_tx
