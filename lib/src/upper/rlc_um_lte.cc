@@ -212,7 +212,8 @@ int rlc_um_lte::rlc_um_lte_tx::build_data_pdu(unique_byte_buffer_t pdu, uint8_t*
   uint32_t ret = pdu->N_bytes;
 
   log->info_hex(payload, ret, "%s Tx PDU SN=%d (%d B)\n", rb_name.c_str(), header.sn, pdu->N_bytes);
-  log->mi_message(srslte::LTE_RLC_DL_UM_All_PDU, parent->get_rlc_parent()->get_rnti(), "[LTE_RLC_DL_UM_All_PDU] tti=%u, lcid=%u, SN=%d, length=%u, FI=%d, LI=%d\n", parent->get_rlc_parent()->get_tti(), parent->get_lcid(), header.sn, pdu->N_bytes, header.fi, header.N_li); // mi-debug
+  // log->mi_message(srslte::LTE_RLC_DL_UM_All_PDU, parent->get_rlc_parent()->get_rnti(), "[LTE_RLC_DL_UM_All_PDU] tti=%u, lcid=%u, SN=%d, length=%u, FI=%d, LI=%d\n", parent->get_rlc_parent()->get_tti(), parent->get_lcid(), header.sn, pdu->N_bytes, header.fi, header.N_li); // mi-debug
+  log->mi_message(srslte::LTE_RLC_DL_UM_All_PDU, parent->get_rlc_parent()->get_rnti(), "%u %u %d %u 0x%x %d\n", parent->get_rlc_parent()->get_tti(), parent->get_lcid(), header.sn, pdu->N_bytes, header.fi, header.N_li); // mi-debug
 
   debug_state();
 
@@ -293,7 +294,8 @@ void rlc_um_lte::rlc_um_lte_rx::handle_data_pdu(uint8_t* payload, uint32_t nof_b
   rlc_umd_pdu_header_t header;
   rlc_um_read_data_pdu_header(payload, nof_bytes, cfg.um.rx_sn_field_length, &header);
   log->info_hex(payload, nof_bytes, "RX %s Rx data PDU SN: %d (%d B)", rb_name.c_str(), header.sn, nof_bytes);
-  log->mi_message(srslte::LTE_RLC_UL_UM_All_PDU, parent->get_rlc_parent()->get_rnti(), "[LTE_RLC_UL_UM_All_PDU] tti=%u, lcid=%u, SN=%d, length=%u, FI=%d, LI=%d\n", parent->get_rlc_parent()->get_tti(), parent->get_lcid(), header.sn, nof_bytes, header.fi, header.N_li); // mi-debug
+  // log->mi_message(srslte::LTE_RLC_UL_UM_All_PDU, parent->get_rlc_parent()->get_rnti(), "[LTE_RLC_UL_UM_All_PDU] tti=%u, lcid=%u, SN=%d, length=%u, FI=%d, LI=%d\n", parent->get_rlc_parent()->get_tti(), parent->get_lcid(), header.sn, nof_bytes, header.fi, header.N_li); // mi-debug
+  log->mi_message(srslte::LTE_RLC_UL_UM_All_PDU, parent->get_rlc_parent()->get_rnti(), "%u %u %d %u 0x%d %d\n", parent->get_rlc_parent()->get_tti(), parent->get_lcid(), header.sn, nof_bytes, header.fi, header.N_li); // mi-debug
 
   if (RX_MOD_BASE(header.sn) >= RX_MOD_BASE(vr_uh - cfg.um.rx_window_size) &&
       RX_MOD_BASE(header.sn) < RX_MOD_BASE(vr_ur)) {

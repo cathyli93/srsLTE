@@ -28,6 +28,7 @@
 #include "srslte/common/int_helpers.h"
 #include "srslte/interfaces/sched_interface.h"
 #include "srslte/srslte.h"
+#include "srslte/common/logger_const.h" // mi-debug
 
 using srslte::byte_buffer_t;
 using srslte::uint32_to_uint8;
@@ -604,6 +605,7 @@ void rrc::parse_ul_ccch(uint16_t rnti, srslte::unique_byte_buffer_t pdu)
       case ul_ccch_msg_type_c::c1_c_::types::rrc_conn_request:
         if (user_it != users.end()) {
           user_it->second->handle_rrc_con_req(&ul_ccch_msg.msg.c1().rrc_conn_request());
+          rrc_log->mi_message(srslte::LTE_RRC_OTA_Packet, rnti, "UL_CCCH RRCConnectionSetupRequest"); //mi-debug
         } else {
           rrc_log->error("Received ConnectionSetup for rnti=0x%x without context\n", rnti);
         }
@@ -1141,6 +1143,7 @@ void rrc::ue::parse_ul_dcch(uint32_t lcid, srslte::unique_byte_buffer_t pdu)
       parent->rrc_log->console("User 0x%x connected\n", rnti);
       state = RRC_STATE_REGISTERED;
       set_activity_timeout(UE_INACTIVITY_TIMEOUT);
+      parent->rrc_log->mi_message(srslte::LTE_RRC_OTA_Packet, rnti, "UL_DCCH RRCConnectionReconfigurationComplete"); //mi-debug
       break;
     case ul_dcch_msg_type_c::c1_c_::types::security_mode_complete:
       handle_security_mode_complete(&ul_dcch_msg.msg.c1().security_mode_complete());
@@ -1213,6 +1216,9 @@ void rrc::ue::handle_rrc_con_setup_complete(rrc_conn_setup_complete_s* msg, srsl
   parent->phy->complete_config_dedicated(rnti);
 
   parent->rrc_log->info("RRCConnectionSetupComplete transaction ID: %d\n", msg->rrc_transaction_id);
+
+  parent->rrc_log->mi_message(srslte::LTE_RRC_OTA_Packet, rnti, "UL_DCCH RRCConnectionSetupComplete"); //mi-debug
+
   rrc_conn_setup_complete_r8_ies_s* msg_r8 = &msg->crit_exts.c1().rrc_conn_setup_complete_r8();
 
   // TODO: msg->selected_plmn_id - used to select PLMN from SIB1 list
@@ -1637,6 +1643,8 @@ void rrc::ue::send_connection_setup(bool is_setup)
   rr_cfg->sps_cfg_present = false;
   //  rr_cfg->rlf_timers_and_constants_present = false;
 
+  parent->rrc_log->mi_message(srslte::LTE_RRC_OTA_Packet, rnti, "DL_CCCH RRCConnectionSetup"); //mi-debug
+
   send_dl_ccch(&dl_ccch_msg);
 }
 
@@ -1658,6 +1666,8 @@ void rrc::ue::send_connection_release()
     rel_ies.redirected_carrier_info.set_geran();
     rel_ies.redirected_carrier_info.geran() = parent->sib7.carrier_freqs_info_list[0].carrier_freqs;
   }
+
+  parent->rrc_log->mi_message(srslte::LTE_RRC_OTA_Packet, rnti, "DL_DCCH RRCConnectionRelease"); //mi-debug
 
   send_dl_dcch(&dl_dcch_msg);
 }
@@ -1892,6 +1902,8 @@ void rrc::ue::send_connection_reconf(srslte::unique_byte_buffer_t pdu)
 
   // Reuse same PDU
   pdu->clear();
+
+  parent->rrc_log->mi_message(srslte::LTE_RRC_OTA_Packet, rnti, "DL_DCCH RRCConnectionReconfiguration"); //mi-debug
 
   send_dl_dcch(&dl_dcch_msg, std::move(pdu));
 
