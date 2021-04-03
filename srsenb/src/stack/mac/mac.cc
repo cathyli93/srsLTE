@@ -598,8 +598,9 @@ int mac::get_dl_sched(uint32_t tti_tx_dl, dl_sched_list_t& dl_sched_res_list)
                 Error("Error! PDU was not generated (rnti=0x%04x, tb=%d)\n", rnti, tb);
               }
 
-              // mi-log
-              log_h->mi_message(srslte::LTE_MAC_DL_Transport_Block, rnti, "[MAC_DL_PDU] tti_tx_dl=%u, enb_cc_idx=%u, tb_size=%u, crc=%d\n", tti_tx_dl, enb_cc_idx, sched_result.data[i].tbs[tb], true);
+              // // mi-log
+              // log_h->mi_message(srslte::LTE_MAC_DL_Transport_Block, rnti, "[MAC_DL_PDU] tti_tx_dl=%u, enb_cc_idx=%u, tb_size=%u, crc=%d\n", tti_tx_dl, enb_cc_idx, sched_result.data[i].tbs[tb], true);
+              log_h->mi_message(srslte::LTE_MAC_DL_Transport_Block, rnti, "%u %u %u %d\n", tti_tx_dl, enb_cc_idx, sched_result.data[i].tbs[tb], true); // mi-debug
 
               if (pcap) {
                 pcap->write_dl_crnti(
