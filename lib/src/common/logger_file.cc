@@ -77,7 +77,7 @@ void logger_file::init(std::string file, int max_length_, std::string mi_file, s
       }
       // MiMessageType msg_type = MsgTypeToName[token];
       supported_msg_types.insert(MsgTypeToName.find(token)->second);
-      printf("Token=%s, id=0x%x\n", token, MsgTypeToName.find(token)->second);
+      printf("Token=%s, id=0x%x\n", token.c_str(), MsgTypeToName.find(token)->second);
       to_split.erase(0, pos + delimiter.length());
     }
     for (auto it=supported_msg_types.begin(); it!=supported_msg_types.end(); it++) {
