@@ -30,7 +30,7 @@
 
 namespace srsenb {
 
-class pdcp : public pdcp_interface_rlc, public pdcp_interface_gtpu, public pdcp_interface_rrc
+class pdcp : public pdcp_interface_rlc, public pdcp_interface_gtpu, public pdcp_interface_rrc, public pdcp_interface_mi
 {
 public:
   pdcp(srslte::task_handler_interface* task_executor_, const char* logname);
@@ -53,7 +53,7 @@ public:
   void enable_encryption(uint16_t rnti, uint32_t lcid) override;
   bool get_bearer_status(uint16_t rnti, uint32_t lcid, uint16_t* dlsn, uint16_t* dlhfn, uint16_t* ulsn, uint16_t* ulhfn)
       override;
-  uint32_t get_tti() override; { return phy == nullptr ? 0 : phy->get_tti(); } // mi-debug
+  uint32_t get_tti() override; // mi-debug
 
 private:
   class user_interface_rlc : public srsue::rlc_interface_pdcp

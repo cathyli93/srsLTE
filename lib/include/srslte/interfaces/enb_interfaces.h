@@ -398,7 +398,7 @@ class pdcp_interface_mi
 {
 public:
   virtual uint32_t get_tti() = 0;
-}
+};
 
 // RRC interface for RLC
 class rrc_interface_rlc
