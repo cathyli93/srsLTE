@@ -535,9 +535,8 @@ typedef struct {
   // qr-conf
   std::string                   scell_act_policy; 
   uint32_t                      scell_act_rbs;
-  std::string                   scell_deact_policy;
-  uint32_t                      scell_deact_rbs;
-  uint32_t                      scell_deact_cqi;
+  // std::string                   scell_deact_policy;
+  // uint32_t                      scell_deact_rbs;
   // qr-conf end
 } mac_args_t;
 

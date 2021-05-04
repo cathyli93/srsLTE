@@ -192,11 +192,10 @@ void parse_args(all_args_t* args, int argc, char* argv[])
     ("expert.eia_pref_list", bpo::value<string>(&args->general.eia_pref_list)->default_value("EIA2, EIA1, EIA0"), "Ordered preference list for the selection of integrity algorithm (EIA) (default: EIA2, EIA1, EIA0).")
 
     // qr-conf
-    ("flora.scell_act_policy", bpo::value<string>(&args->stack.mac.scell_act_policy)->default_value("null"), "Criterion for scell activation (E.g. rbs (RLC buffer size), null; default: null).") 
-    ("flora.scell_act_rbs", bpo::value<uint32_t>(&args->stack.mac.scell_act_rbs)->default_value(10), "Threshold of RLC buffer size to activate SCell, in KB.") 
-    ("flora.scell_deact_policy", bpo::value<string>(&args->stack.mac.scell_deact_policy)->default_value("null"), "Criterion for scell deactivation (E.g. rbs (RLC buffer size), cqi, null; default: null).") 
-    ("flora.scell_deact_rbs", bpo::value<uint32_t>(&args->stack.mac.scell_deact_rbs)->default_value(8), "Threshold of RLC buffer size to deactivate SCell, in KB.") 
-    ("flora.scell_deact_cqi", bpo::value<uint32_t>(&args->stack.mac.scell_deact_cqi)->default_value(10), "Threshold of CQI to deactivate SCell, range: [0-15].") 
+    ("flora.scell_act_policy", bpo::value<string>(&args->stack.mac.scell_act_policy)->default_value("null"), "Criterion for scell activation/de-activation (Options: rbs (RLC buffer size), null; default: null).") 
+    ("flora.scell_act_rbs", bpo::value<uint32_t>(&args->stack.mac.scell_act_rbs)->default_value(10), "Threshold of RLC buffer size to activate/deactivate SCell, in KB.") 
+    // ("flora.scell_deact_policy", bpo::value<string>(&args->stack.mac.scell_deact_policy)->default_value("null"), "Criterion for scell deactivation (E.g. rbs (RLC buffer size), cqi, null; default: null).") 
+    // ("flora.scell_deact_rbs", bpo::value<uint32_t>(&args->stack.mac.scell_deact_rbs)->default_value(8), "Threshold of RLC buffer size to deactivate SCell, in KB.") 
     // qr-conf end
     // eMBMS section
     ("embms.enable", bpo::value<bool>(&args->stack.embms.enable)->default_value(false), "Enables MBMS in the eNB")
